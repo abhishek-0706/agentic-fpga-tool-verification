@@ -2,7 +2,8 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-runs/
+runs/*
+!runs/.gitkeep
 *.egg-info/
 .yowasp_cache/
 
