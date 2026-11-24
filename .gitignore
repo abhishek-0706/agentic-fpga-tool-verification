@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+runs/
+*.egg-info/
+.yowasp_cache/
+
+# personal study material, not part of the published project
+study_guide/
+
+# fine-tuning (finetune/README.md): generated job bank, smoke-test venv, notebook outputs, model files
+finetune/_gen/
+finetune/.venv-smoke/
+finetune/triage_lora/
+finetune/results/*.zip
+finetune/results/local_*/
+*.safetensors
+*.gguf
+
+CONCEPTS.md

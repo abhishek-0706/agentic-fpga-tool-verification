@@ -1,0 +1,8 @@
+[
+  {"name": "tc_legacy_cmp4", "file": "tc_bad_syntax.v", "top": "cmp4", "features": ["FEAT-COMB"],
+   "sequential": false, "_ground_truth": "test_bug"},
+  {"name": "tc_legacy_gray", "file": "tc_gray_wrong_top.v", "top": "gray_counter_top", "features": ["FEAT-SEQ"],
+   "sequential": true, "reset": "rst", "depth": 6, "_ground_truth": "test_bug"},
+  {"name": "tc_legacy_parity", "file": "tc_parity_stale.v", "top": "parity32", "features": ["FEAT-COMB"],
+   "sequential": false, "expect": {"xc7": ["LUT>=1", "DSP>=1"]}, "_ground_truth": "test_bug"}
+]

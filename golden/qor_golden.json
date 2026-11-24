@@ -1,0 +1,320 @@
+{
+ "tc_addsub|synth": {},
+ "tc_addsub|synth_xilinx -family xc7": {
+  "CARRY": 10,
+  "IO": 50,
+  "LUT": 18
+ },
+ "tc_addsub|synth_xilinx -family xc7 -dff": {
+  "CARRY": 10,
+  "IO": 50,
+  "LUT": 17
+ },
+ "tc_addsub|synth_xilinx -family xc7 -flatten": {
+  "CARRY": 10,
+  "IO": 50,
+  "LUT": 18
+ },
+ "tc_addsub|synth_xilinx -family xc7 -flatten -noiopad": {
+  "CARRY": 10,
+  "LUT": 17
+ },
+ "tc_addsub|synth_xilinx -family xc7 -noiopad": {
+  "CARRY": 10,
+  "LUT": 17
+ },
+ "tc_addsub|synth_xilinx -family xc7 -widemux 5": {
+  "CARRY": 10,
+  "IO": 50,
+  "LUT": 48
+ },
+ "tc_bram|synth": {
+  "FF": 1040
+ },
+ "tc_bram|synth_xilinx -family xc7": {
+  "BRAM": 1,
+  "IO": 41
+ },
+ "tc_bram|synth_xilinx -family xc7 -dff": {
+  "BRAM": 1,
+  "IO": 41
+ },
+ "tc_bram|synth_xilinx -family xc7 -flatten": {
+  "BRAM": 1,
+  "IO": 41
+ },
+ "tc_bram|synth_xilinx -family xc7 -flatten -noiopad": {
+  "BRAM": 1,
+  "IO": 1
+ },
+ "tc_bram|synth_xilinx -family xc7 -noiopad": {
+  "BRAM": 1,
+  "IO": 1
+ },
+ "tc_bram|synth_xilinx -family xc7 -widemux 5": {
+  "BRAM": 1,
+  "IO": 41
+ },
+ "tc_comb_mux|synth": {},
+ "tc_comb_mux|synth_xilinx -family xc7": {
+  "IO": 50,
+  "LUT": 14
+ },
+ "tc_comb_mux|synth_xilinx -family xc7 -dff": {
+  "IO": 50,
+  "LUT": 14
+ },
+ "tc_comb_mux|synth_xilinx -family xc7 -flatten": {
+  "IO": 50,
+  "LUT": 14
+ },
+ "tc_comb_mux|synth_xilinx -family xc7 -flatten -noiopad": {
+  "LUT": 14
+ },
+ "tc_comb_mux|synth_xilinx -family xc7 -noiopad": {
+  "LUT": 14
+ },
+ "tc_comb_mux|synth_xilinx -family xc7 -widemux 5": {
+  "IO": 50,
+  "LUT": 14
+ },
+ "tc_counter|synth": {
+  "FF": 8
+ },
+ "tc_counter|synth_xilinx -family xc7": {
+  "CARRY": 2,
+  "FF": 8,
+  "IO": 14,
+  "LUT": 12
+ },
+ "tc_counter|synth_xilinx -family xc7 -dff": {
+  "CARRY": 2,
+  "FF": 8,
+  "IO": 14,
+  "LUT": 11
+ },
+ "tc_counter|synth_xilinx -family xc7 -flatten": {
+  "CARRY": 2,
+  "FF": 8,
+  "IO": 14,
+  "LUT": 12
+ },
+ "tc_counter|synth_xilinx -family xc7 -flatten -noiopad": {
+  "CARRY": 2,
+  "FF": 8,
+  "IO": 1,
+  "LUT": 11
+ },
+ "tc_counter|synth_xilinx -family xc7 -noiopad": {
+  "CARRY": 2,
+  "FF": 8,
+  "IO": 1,
+  "LUT": 11
+ },
+ "tc_counter|synth_xilinx -family xc7 -widemux 5": {
+  "CARRY": 4,
+  "FF": 8,
+  "IO": 14,
+  "LUT": 8
+ },
+ "tc_fsm_seqdet|synth": {
+  "FF": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7": {
+  "FF": 5,
+  "IO": 5,
+  "LUT": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7 -dff": {
+  "FF": 5,
+  "IO": 5,
+  "LUT": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7 -flatten": {
+  "FF": 5,
+  "IO": 5,
+  "LUT": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7 -flatten -noiopad": {
+  "FF": 5,
+  "IO": 1,
+  "LUT": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7 -noiopad": {
+  "FF": 5,
+  "IO": 1,
+  "LUT": 5
+ },
+ "tc_fsm_seqdet|synth_xilinx -family xc7 -widemux 5": {
+  "FF": 5,
+  "IO": 5,
+  "LUT": 5
+ },
+ "tc_legacy_parity|synth": {},
+ "tc_legacy_parity|synth_xilinx -family xc7": {
+  "IO": 35,
+  "LUT": 33
+ },
+ "tc_legacy_parity|synth_xilinx -family xc7 -dff": {
+  "IO": 35,
+  "LUT": 33
+ },
+ "tc_legacy_parity|synth_xilinx -family xc7 -flatten": {
+  "IO": 35,
+  "LUT": 33
+ },
+ "tc_legacy_parity|synth_xilinx -family xc7 -flatten -noiopad": {
+  "LUT": 33
+ },
+ "tc_legacy_parity|synth_xilinx -family xc7 -noiopad": {
+  "LUT": 33
+ },
+ "tc_legacy_parity|synth_xilinx -family xc7 -widemux 5": {
+  "IO": 35,
+  "LUT": 33
+ },
+ "tc_lutram|synth": {
+  "FF": 128
+ },
+ "tc_lutram|synth_xilinx -family xc7": {
+  "IO": 27,
+  "LUTRAM": 2
+ },
+ "tc_lutram|synth_xilinx -family xc7 -dff": {
+  "IO": 27,
+  "LUTRAM": 2
+ },
+ "tc_lutram|synth_xilinx -family xc7 -flatten": {
+  "IO": 27,
+  "LUTRAM": 2
+ },
+ "tc_lutram|synth_xilinx -family xc7 -flatten -noiopad": {
+  "IO": 1,
+  "LUTRAM": 2
+ },
+ "tc_lutram|synth_xilinx -family xc7 -noiopad": {
+  "IO": 1,
+  "LUTRAM": 2
+ },
+ "tc_lutram|synth_xilinx -family xc7 -widemux 5": {
+  "IO": 27,
+  "LUTRAM": 2
+ },
+ "tc_macc|synth": {
+  "FF": 16
+ },
+ "tc_macc|synth_xilinx -family xc7": {
+  "DSP": 1,
+  "IO": 31
+ },
+ "tc_macc|synth_xilinx -family xc7 -dff": {
+  "DSP": 1,
+  "IO": 31
+ },
+ "tc_macc|synth_xilinx -family xc7 -flatten": {
+  "DSP": 1,
+  "IO": 31
+ },
+ "tc_macc|synth_xilinx -family xc7 -flatten -noiopad": {
+  "DSP": 1,
+  "IO": 1
+ },
+ "tc_macc|synth_xilinx -family xc7 -noiopad": {
+  "DSP": 1,
+  "IO": 1
+ },
+ "tc_macc|synth_xilinx -family xc7 -widemux 5": {
+  "DSP": 1,
+  "IO": 31
+ },
+ "tc_mul_reg|synth": {
+  "FF": 12
+ },
+ "tc_mul_reg|synth_xilinx -family xc7": {
+  "DSP": 1,
+  "IO": 26
+ },
+ "tc_mul_reg|synth_xilinx -family xc7 -dff": {
+  "DSP": 1,
+  "IO": 26
+ },
+ "tc_mul_reg|synth_xilinx -family xc7 -flatten": {
+  "DSP": 1,
+  "IO": 26
+ },
+ "tc_mul_reg|synth_xilinx -family xc7 -flatten -noiopad": {
+  "DSP": 1,
+  "IO": 1
+ },
+ "tc_mul_reg|synth_xilinx -family xc7 -noiopad": {
+  "DSP": 1,
+  "IO": 1
+ },
+ "tc_mul_reg|synth_xilinx -family xc7 -widemux 5": {
+  "DSP": 1,
+  "IO": 26
+ },
+ "tc_param_hier|synth_xilinx -family xc7": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 46,
+  "LUT": 36
+ },
+ "tc_param_hier|synth_xilinx -family xc7 -dff": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 46,
+  "LUT": 36
+ },
+ "tc_param_hier|synth_xilinx -family xc7 -flatten": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 46,
+  "LUT": 25
+ },
+ "tc_param_hier|synth_xilinx -family xc7 -flatten -noiopad": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 1,
+  "LUT": 25
+ },
+ "tc_param_hier|synth_xilinx -family xc7 -noiopad": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 1,
+  "LUT": 36
+ },
+ "tc_param_hier|synth_xilinx -family xc7 -widemux 5": {
+  "CARRY": 5,
+  "FF": 20,
+  "IO": 46,
+  "LUT": 36
+ },
+ "tc_shreg|synth": {
+  "FF": 32
+ },
+ "tc_shreg|synth_xilinx -family xc7": {
+  "IO": 7,
+  "SRL": 2
+ },
+ "tc_shreg|synth_xilinx -family xc7 -dff": {
+  "IO": 7,
+  "SRL": 2
+ },
+ "tc_shreg|synth_xilinx -family xc7 -flatten": {
+  "IO": 7,
+  "SRL": 2
+ },
+ "tc_shreg|synth_xilinx -family xc7 -flatten -noiopad": {
+  "IO": 1,
+  "SRL": 2
+ },
+ "tc_shreg|synth_xilinx -family xc7 -noiopad": {
+  "IO": 1,
+  "SRL": 2
+ },
+ "tc_shreg|synth_xilinx -family xc7 -widemux 5": {
+  "IO": 7,
+  "SRL": 2
+ }
+}

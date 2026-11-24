@@ -1,0 +1,18 @@
+[
+  {
+    "id": "KDB-0001",
+    "title": "Internal error in wreduce on parameter-overridden hierarchy (generic synth)",
+    "status": "open",
+    "match": "Assert .* failed in pass wreduce",
+    "component": "synthesis core: wreduce",
+    "workaround": "use synth -flatten, or synth_xilinx, until the fix lands"
+  },
+  {
+    "id": "KDB-0002",
+    "title": "abc9 run aborts when the scratch directory is not writable",
+    "status": "closed",
+    "match": "abc9: cannot create temporary directory",
+    "component": "synthesis core: abc9",
+    "workaround": "set TMPDIR to a writable location"
+  }
+]

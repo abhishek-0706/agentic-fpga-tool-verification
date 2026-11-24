@@ -1,0 +1,358 @@
+{
+ "seed": 20261124,
+ "system_prompt": "You are a verification engineer for an FPGA synthesis tool. Answer ONLY with one JSON object that matches the given JSON schema. No prose, no markdown fences.",
+ "tasks": {
+  "triage": "Classify this regression failure cluster as tool_defect, test_bug, infrastructure or known_issue, name the tool component, and justify from the evidence only.",
+  "eval": "Classify this regression failure cluster as tool_defect, test_bug, infrastructure or known_issue."
+ },
+ "bank": {
+  "jobs_clean": 308,
+  "jobs_faulted": 54,
+  "clean_status": {
+   "pass": 166,
+   "fail": 142
+  },
+  "clean_failure_kinds": {
+   "qor_golden": 10,
+   "equiv_fail": 21,
+   "crash": 12,
+   "parse_error": 42,
+   "elab_error": 28,
+   "qor_expect": 29
+  },
+  "faulted_kinds": {
+   "infra": 36,
+   "timeout": 18
+  },
+  "job_seconds_clean": 12466.4,
+  "escapes_clean": 0,
+  "testcases": 44,
+  "flows": [
+   "generic",
+   "generic_flatten",
+   "xc7",
+   "xc7_flatten",
+   "xc7_noiopad",
+   "xc7_dff",
+   "xc7_flat_noio"
+  ],
+  "workers": 4,
+  "job_timeout_s": 600,
+  "hang_timeout_s": 150
+ },
+ "compositions": 6000,
+ "clusters_seen": 24111,
+ "dropped_clusters": {
+  "cluster mixes ground-truth classes": 1
+ },
+ "unique_labelled_evidence": 5691,
+ "leakage": {
+  "exact_duplicates_of_gold_removed": 8,
+  "near_duplicates_of_gold_removed": 1058,
+  "near_duplicates_by_gold_item": {
+   "20261123-215943-full:C07 + hw07": 207,
+   "20261123-215943-full:C01": 92,
+   "20261123-215943-full:C02": 92,
+   "20261123-215943-full:C09": 52,
+   "20261123-215943-full:C03": 131,
+   "20261123-215943-full:C10": 167,
+   "20261123-215943-full:C04": 111,
+   "20261123-215943-full:C06": 86,
+   "20261123-215943-full:C05": 120
+  },
+  "near_duplicate_definition": "Same failure mode (kind + key message with every number masked) on the same testcases, where parameter variants and mutants of one generator count as the same testcase; flows, signature and log excerpt are ignored.",
+  "train_or_val_prompt_identical_to_a_test_prompt": 0,
+  "near_keys_shared_by_train_and_val": 0
+ },
+ "selection": {
+  "key_cap": 14,
+  "class_cap": 130,
+  "class_min": 60,
+  "pool_after_leakage_removal": 4633,
+  "pool_by_class": {
+   "tool_defect": 1543,
+   "known_issue": 627,
+   "infrastructure": 1025,
+   "test_bug": 1438
+  },
+  "structural_keys_by_class": {
+   "tool_defect": 50,
+   "test_bug": 63,
+   "infrastructure": 2,
+   "known_issue": 3
+  }
+ },
+ "augmentation": {
+  "fraction": 0.35,
+  "applied": 122,
+  "what": "testcase names replaced consistently by random neutral names (tc_<word>_<nn>); design.v:<line> numbers in the log excerpt shifted by one random offset in [-5, 40]"
+ },
+ "splits": {
+  "train": {
+   "test_bug": 101,
+   "tool_defect": 106,
+   "infrastructure": 51,
+   "known_issue": 51
+  },
+  "val": {
+   "tool_defect": 24,
+   "test_bug": 29,
+   "known_issue": 9,
+   "infrastructure": 9
+  },
+  "test": {
+   "test_bug": 6,
+   "tool_defect": 10,
+   "infrastructure": 4,
+   "known_issue": 2
+  },
+  "test_by_source": {
+   "harvested": 10,
+   "handwritten": 12
+  },
+  "train_task_mix": {
+   "eval": 168,
+   "triage": 141
+  }
+ },
+ "rules_accuracy_on_selected_synthetic_examples": 0.945,
+ "gold_twins_in_train": {
+  "20261123-215943-full:C01": {
+   "source": "harvested",
+   "label": "test_bug",
+   "structural_twins": 2,
+   "structural_twin_labels": {
+    "test_bug": 2
+   },
+   "pattern_twins": 19,
+   "pattern_twin_labels": {
+    "test_bug": 19
+   }
+  },
+  "20261123-215943-full:C02": {
+   "source": "harvested",
+   "label": "test_bug",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 9,
+   "pattern_twin_labels": {
+    "test_bug": 9
+   }
+  },
+  "20261123-215943-full:C03": {
+   "source": "harvested",
+   "label": "test_bug",
+   "structural_twins": 2,
+   "structural_twin_labels": {
+    "test_bug": 2
+   },
+   "pattern_twins": 5,
+   "pattern_twin_labels": {
+    "test_bug": 5
+   }
+  },
+  "20261123-215943-full:C04": {
+   "source": "harvested",
+   "label": "tool_defect",
+   "structural_twins": 3,
+   "structural_twin_labels": {
+    "tool_defect": 3
+   },
+   "pattern_twins": 34,
+   "pattern_twin_labels": {
+    "tool_defect": 34
+   }
+  },
+  "20261123-215943-full:C05": {
+   "source": "harvested",
+   "label": "tool_defect",
+   "structural_twins": 3,
+   "structural_twin_labels": {
+    "tool_defect": 3
+   },
+   "pattern_twins": 28,
+   "pattern_twin_labels": {
+    "tool_defect": 28
+   }
+  },
+  "20261123-215943-full:C06": {
+   "source": "harvested",
+   "label": "infrastructure",
+   "structural_twins": 24,
+   "structural_twin_labels": {
+    "infrastructure": 24
+   },
+   "pattern_twins": 24,
+   "pattern_twin_labels": {
+    "infrastructure": 24
+   }
+  },
+  "20261123-215943-full:C07": {
+   "source": "harvested",
+   "label": "known_issue",
+   "structural_twins": 14,
+   "structural_twin_labels": {
+    "known_issue": 14
+   },
+   "pattern_twins": 14,
+   "pattern_twin_labels": {
+    "known_issue": 14
+   }
+  },
+  "20261123-215943-full:C08": {
+   "source": "harvested",
+   "label": "infrastructure",
+   "structural_twins": 27,
+   "structural_twin_labels": {
+    "infrastructure": 27
+   },
+   "pattern_twins": 27,
+   "pattern_twin_labels": {
+    "infrastructure": 27
+   }
+  },
+  "20261123-215943-full:C09": {
+   "source": "harvested",
+   "label": "tool_defect",
+   "structural_twins": 3,
+   "structural_twin_labels": {
+    "tool_defect": 3
+   },
+   "pattern_twins": 34,
+   "pattern_twin_labels": {
+    "tool_defect": 34
+   }
+  },
+  "20261123-215943-full:C10": {
+   "source": "harvested",
+   "label": "tool_defect",
+   "structural_twins": 3,
+   "structural_twin_labels": {
+    "tool_defect": 3
+   },
+   "pattern_twins": 34,
+   "pattern_twin_labels": {
+    "tool_defect": 34
+   }
+  },
+  "hw01": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw02": {
+   "source": "handwritten",
+   "label": "infrastructure",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 24,
+   "pattern_twin_labels": {
+    "infrastructure": 24
+   }
+  },
+  "hw03": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw04": {
+   "source": "handwritten",
+   "label": "test_bug",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw05": {
+   "source": "handwritten",
+   "label": "test_bug",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 4,
+   "pattern_twin_labels": {
+    "test_bug": 4
+   }
+  },
+  "hw06": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw07": {
+   "source": "handwritten",
+   "label": "known_issue",
+   "structural_twins": 14,
+   "structural_twin_labels": {
+    "known_issue": 14
+   },
+   "pattern_twins": 14,
+   "pattern_twin_labels": {
+    "known_issue": 14
+   }
+  },
+  "hw08": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 2,
+   "pattern_twin_labels": {
+    "test_bug": 2
+   }
+  },
+  "hw09": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw10": {
+   "source": "handwritten",
+   "label": "infrastructure",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 0,
+   "pattern_twin_labels": {}
+  },
+  "hw11": {
+   "source": "handwritten",
+   "label": "tool_defect",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 28,
+   "pattern_twin_labels": {
+    "tool_defect": 28
+   }
+  },
+  "hw12": {
+   "source": "handwritten",
+   "label": "test_bug",
+   "structural_twins": 0,
+   "structural_twin_labels": {},
+   "pattern_twins": 19,
+   "pattern_twin_labels": {
+    "tool_defect": 19
+   }
+  }
+ },
+ "twin_definitions": {
+  "structural": "same kind, key message (numbers masked), fingerprint, baseline_failed, golden_match, families, rerun, known_match and error_in_testcase",
+  "pattern": "Decision-relevant shape only: kind, whether a synthesis option is the trigger, baseline, golden, rerun, known-defect match and error location; message text, options, families and testcases are ignored."
+ },
+ "reference_runs": [
+  "openai/gpt-oss-120b (Groq) run 20261124-012322-full",
+  "openai/gpt-oss-120b (Groq) run 20261124-004038-full"
+ ],
+ "build_seconds": 39.4
+}
