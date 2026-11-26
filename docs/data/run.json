@@ -1,0 +1,5180 @@
+{
+ "run": {
+  "id": "20261124-040849-full",
+  "profile": "full",
+  "mode": "rules",
+  "tool": "Yosys via yowasp-yosys 0.71.0.0.post1285"
+ },
+ "metrics": {
+  "run_id": "20261124-040849-full",
+  "profile": "full",
+  "mode": "rules",
+  "tool": "Yosys via yowasp-yosys 0.71.0.0.post1285",
+  "jobs": 65,
+  "passed": 38,
+  "failed": 27,
+  "pass_rate": 0.585,
+  "failure_kinds": {
+   "crash": 1,
+   "elab_error": 5,
+   "equiv_fail": 6,
+   "infra": 1,
+   "parse_error": 5,
+   "qor_expect": 4,
+   "qor_golden": 4,
+   "timeout": 1
+  },
+  "equiv_verdicts": {
+   "bounded": 27,
+   "fail": 6,
+   "not_run": 13,
+   "proven": 15,
+   "skipped": 4
+  },
+  "clusters": 10,
+  "triage_jobs_by_category": {
+   "test_bug": 14,
+   "tool_defect": 10,
+   "infrastructure": 2,
+   "known_issue": 1
+  },
+  "defects": {
+   "draft": 0,
+   "filed": 3,
+   "closed": 4,
+   "rejected": 0
+  },
+  "stage_seconds": {
+   "1_spec_to_plan": 0.03,
+   "2_test_generation": 3.15,
+   "3_4_execute_and_oracles": 289.11,
+   "6_triage": 107.23,
+   "7_defect_management": 0.56,
+   "8_fix_verification": 194.76,
+   "9_coverage": 0.71,
+   "11_evaluation": 0.52
+  },
+  "llm": {}
+ },
+ "flows": [
+  {
+   "id": "generic",
+   "command": "synth",
+   "in_regression": true
+  },
+  {
+   "id": "xc7",
+   "command": "synth_xilinx -family xc7",
+   "in_regression": true
+  },
+  {
+   "id": "xc7_flatten",
+   "command": "synth_xilinx -family xc7 -flatten",
+   "in_regression": true
+  },
+  {
+   "id": "xc7_noiopad",
+   "command": "synth_xilinx -family xc7 -noiopad",
+   "in_regression": false
+  },
+  {
+   "id": "xc7_dff",
+   "command": "synth_xilinx -family xc7 -dff",
+   "in_regression": true
+  },
+  {
+   "id": "xc7_flat_noio",
+   "command": "synth_xilinx -family xc7 -flatten -noiopad",
+   "in_regression": true
+  },
+  {
+   "id": "xc7_widemux",
+   "command": "synth_xilinx -family xc7 -widemux 5",
+   "in_regression": false
+  }
+ ],
+ "features": [
+  {
+   "id": "FEAT-COMB",
+   "title": "Combinational logic, case/casez priority logic, reduction operators",
+   "constructs": [
+    "continuous assign",
+    "always @*",
+    "case",
+    "casez",
+    "reduction operators"
+   ],
+   "generators": [
+    "comb_mux"
+   ],
+   "expect": {
+    "xc7": [
+     "LUT>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P2"
+  },
+  {
+   "id": "FEAT-ARITH",
+   "title": "Adders and subtractors mapped to carry chains",
+   "constructs": [
+    "+ and - operators",
+    "carry out"
+   ],
+   "generators": [
+    "addsub"
+   ],
+   "expect": {
+    "xc7": [
+     "CARRY>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-DSP",
+   "title": "Multiplier and multiply-accumulate inference into DSP48E1",
+   "constructs": [
+    "* operator",
+    "registered product",
+    "accumulator feedback"
+   ],
+   "generators": [
+    "mul_reg",
+    "macc"
+   ],
+   "expect": {
+    "xc7": [
+     "DSP>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-FSM",
+   "title": "Finite state machine extraction and re-encoding",
+   "constructs": [
+    "state register",
+    "case-based next-state logic",
+    "registered Mealy output"
+   ],
+   "generators": [
+    "fsm_seqdet"
+   ],
+   "expect": {},
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-SEQ",
+   "title": "Sequential logic with synchronous reset and clock enable",
+   "constructs": [
+    "always @(posedge clk)",
+    "synchronous reset",
+    "enable",
+    "up/down counting"
+   ],
+   "generators": [
+    "counter",
+    "fsm_seqdet",
+    "macc"
+   ],
+   "expect": {},
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-SRL",
+   "title": "Shift registers mapped to SRL16E/SRLC32E",
+   "constructs": [
+    "shift by concatenation with enable",
+    "no reset"
+   ],
+   "generators": [
+    "shreg"
+   ],
+   "expect": {
+    "xc7": [
+     "SRL>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P2"
+  },
+  {
+   "id": "FEAT-LUTRAM",
+   "title": "Small memories with asynchronous read mapped to distributed RAM",
+   "constructs": [
+    "reg array",
+    "synchronous write",
+    "asynchronous read"
+   ],
+   "generators": [
+    "lutram"
+   ],
+   "expect": {
+    "xc7": [
+     "LUTRAM>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-BRAM",
+   "title": "Memories with synchronous read mapped to block RAM",
+   "constructs": [
+    "reg array",
+    "ram_style attribute",
+    "read-first synchronous read"
+   ],
+   "generators": [
+    "bram"
+   ],
+   "expect": {
+    "xc7": [
+     "BRAM>=1"
+    ]
+   },
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-PARAM",
+   "title": "Parameterised modules and parameter overrides",
+   "constructs": [
+    "parameter",
+    "#( ) override",
+    "width expressions"
+   ],
+   "generators": [
+    "counter",
+    "param_hier"
+   ],
+   "expect": {},
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P2"
+  },
+  {
+   "id": "FEAT-HIER",
+   "title": "Hierarchy, generate loops and flattening",
+   "constructs": [
+    "submodule instances",
+    "generate for",
+    "indexed part-select"
+   ],
+   "generators": [
+    "param_hier"
+   ],
+   "expect": {},
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P1"
+  },
+  {
+   "id": "FEAT-ASYNC-RST",
+   "title": "Asynchronous reset and preset flip-flops (FDCE/FDPE)",
+   "constructs": [
+    "always @(posedge clk or posedge arst)"
+   ],
+   "generators": [],
+   "expect": {},
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_dff",
+    "xc7_flat_noio"
+   ],
+   "priority": "P2"
+  },
+  {
+   "id": "FEAT-WIDEMUX",
+   "title": "Wide multiplexers mapped to MUXF7/MUXF8",
+   "constructs": [
+    "16:1 and 32:1 multiplexers",
+    "-widemux option"
+   ],
+   "generators": [],
+   "expect": {},
+   "flows": [
+    "xc7",
+    "xc7_widemux"
+   ],
+   "priority": "P3"
+  }
+ ],
+ "testcases": [
+  {
+   "name": "tc_comb_mux",
+   "generator": "comb_mux",
+   "params": {
+    "W": 8
+   },
+   "top": "comb_mux",
+   "features": [
+    "FEAT-COMB"
+   ],
+   "sequential": false,
+   "reset": null,
+   "depth": 1,
+   "expect": {
+    "xc7": [
+     "LUT>=1"
+    ]
+   },
+   "source": "module comb_mux #(parameter W = 8) (\n  input  [W-1:0] a, b, c, d,\n  input  [1:0]   sel,\n  input  [3:0]   req,\n  output reg [W-1:0] y,\n  output reg [1:0]   grant,\n  output             any,\n  output             parity\n);\n  always @* begin\n    case (sel)\n      2'd0: y = a;\n      2'd1: y = b & c;\n      2'd2: y = c | d;\n      default: y = a ^ d;\n    endcase\n  end\n  always @* begin\n    casez (req)\n      4'b1???: grant = 2'd3;\n      4'b01??: grant = 2'd2;\n      4'b001?: grant = 2'd1;\n      default: grant = 2'd0;\n    endcase\n  end\n  assign any = |req;\n  assign parity = ^a;\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_addsub",
+   "generator": "addsub",
+   "params": {
+    "W": 16
+   },
+   "top": "addsub",
+   "features": [
+    "FEAT-ARITH"
+   ],
+   "sequential": false,
+   "reset": null,
+   "depth": 1,
+   "expect": {
+    "xc7": [
+     "CARRY>=1"
+    ]
+   },
+   "source": "module addsub #(parameter W = 16) (\n  input  [W-1:0] a, b,\n  input          sub,\n  output [W:0]   y\n);\n  assign y = sub ? {1'b0, a} - {1'b0, b} : {1'b0, a} + {1'b0, b};\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_mul_reg",
+   "generator": "mul_reg",
+   "params": {
+    "W": 6
+   },
+   "top": "mul_reg",
+   "features": [
+    "FEAT-DSP"
+   ],
+   "sequential": true,
+   "reset": null,
+   "depth": 2,
+   "expect": {
+    "xc7": [
+     "DSP>=1"
+    ]
+   },
+   "source": "module mul_reg #(parameter W = 6) (\n  input              clk,\n  input  [W-1:0]     a, b,\n  output reg [2*W-1:0] p\n);\n  always @(posedge clk) p <= a * b;\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_macc",
+   "generator": "macc",
+   "params": {
+    "W": 6,
+    "AW": 16
+   },
+   "top": "macc",
+   "features": [
+    "FEAT-DSP",
+    "FEAT-SEQ"
+   ],
+   "sequential": true,
+   "reset": "rst",
+   "depth": 3,
+   "expect": {
+    "xc7": [
+     "DSP>=1"
+    ]
+   },
+   "source": "module macc #(parameter W = 6, parameter AW = 16) (\n  input               clk, rst,\n  input  [W-1:0]      a, b,\n  output reg [AW-1:0] acc\n);\n  always @(posedge clk)\n    if (rst) acc <= {AW{1'b0}};\n    else     acc <= acc + a * b;\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_fsm_seqdet",
+   "generator": "fsm_seqdet",
+   "params": {},
+   "top": "fsm_seqdet",
+   "features": [
+    "FEAT-FSM",
+    "FEAT-SEQ"
+   ],
+   "sequential": true,
+   "reset": "rst",
+   "depth": 8,
+   "expect": {},
+   "source": "module fsm_seqdet (\n  input      clk, rst, din,\n  output reg hit\n);\n  localparam S0 = 2'd0, S1 = 2'd1, S2 = 2'd2, S3 = 2'd3;  // detects 1101\n  reg [1:0] st;\n  always @(posedge clk) begin\n    if (rst) begin\n      st <= S0; hit <= 1'b0;\n    end else begin\n      hit <= 1'b0;\n      case (st)\n        S0: st <= din ? S1 : S0;\n        S1: st <= din ? S2 : S0;\n        S2: st <= din ? S2 : S3;\n        S3: begin st <= din ? S1 : S0; hit <= din; end\n      endcase\n    end\n  end\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_counter",
+   "generator": "counter",
+   "params": {
+    "W": 8
+   },
+   "top": "counter",
+   "features": [
+    "FEAT-SEQ",
+    "FEAT-PARAM"
+   ],
+   "sequential": true,
+   "reset": "rst",
+   "depth": 6,
+   "expect": {},
+   "source": "module counter #(parameter W = 8) (\n  input              clk, rst, en, up,\n  output reg [W-1:0] q,\n  output             tc\n);\n  always @(posedge clk)\n    if (rst)     q <= {W{1'b0}};\n    else if (en) q <= up ? q + 1'b1 : q - 1'b1;\n  assign tc = up ? &q : ~|q;\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_shreg",
+   "generator": "shreg",
+   "params": {
+    "W": 2,
+    "DEPTH": 16
+   },
+   "top": "shreg",
+   "features": [
+    "FEAT-SRL"
+   ],
+   "sequential": true,
+   "reset": null,
+   "depth": 19,
+   "expect": {
+    "xc7": [
+     "SRL>=1"
+    ]
+   },
+   "source": "module shreg #(parameter W = 2, parameter DEPTH = 16) (\n  input          clk, en,\n  input  [W-1:0] d,\n  output [W-1:0] q\n);\n  reg [W*DEPTH-1:0] sr;\n  always @(posedge clk)\n    if (en) sr <= {sr[W*DEPTH-W-1:0], d};\n  assign q = sr[W*DEPTH-1 -: W];\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_lutram",
+   "generator": "lutram",
+   "params": {
+    "AW": 4,
+    "DW": 8
+   },
+   "top": "lutram",
+   "features": [
+    "FEAT-LUTRAM"
+   ],
+   "sequential": true,
+   "reset": null,
+   "depth": 4,
+   "expect": {
+    "xc7": [
+     "LUTRAM>=1"
+    ]
+   },
+   "source": "module lutram #(parameter AW = 4, parameter DW = 8) (\n  input           clk, we,\n  input  [AW-1:0] wa, ra,\n  input  [DW-1:0] d,\n  output [DW-1:0] q\n);\n  reg [DW-1:0] mem [0:(1<<AW)-1];\n  always @(posedge clk) if (we) mem[wa] <= d;\n  assign q = mem[ra];\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_bram",
+   "generator": "bram",
+   "params": {
+    "AW": 6,
+    "DW": 16
+   },
+   "top": "bram",
+   "features": [
+    "FEAT-BRAM"
+   ],
+   "sequential": true,
+   "reset": null,
+   "depth": 3,
+   "expect": {
+    "xc7": [
+     "BRAM>=1"
+    ]
+   },
+   "source": "module bram #(parameter AW = 6, parameter DW = 16) (\n  input               clk, we,\n  input  [AW-1:0]     addr,\n  input  [DW-1:0]     d,\n  output reg [DW-1:0] q\n);\n  (* ram_style = \"block\" *) reg [DW-1:0] mem [0:(1<<AW)-1];\n  always @(posedge clk) begin\n    if (we) mem[addr] <= d;\n    q <= mem[addr];\n  end\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_param_hier",
+   "generator": "param_hier",
+   "params": {
+    "N": 3,
+    "W": 4
+   },
+   "top": "param_hier",
+   "features": [
+    "FEAT-PARAM",
+    "FEAT-HIER"
+   ],
+   "sequential": true,
+   "reset": null,
+   "depth": 3,
+   "expect": {},
+   "source": "module ph_lane #(parameter W = 4) (\n  input              clk,\n  input  [W-1:0]     a, b,\n  output reg [W-1:0] y\n);\n  always @(posedge clk) y <= (a + b) ^ {W{a[0]}};\nendmodule\n\nmodule param_hier #(parameter N = 3, parameter W = 4) (\n  input              clk,\n  input  [N*W-1:0]   a, b,\n  output [N*W-1:0]   y,\n  output [2*W-1:0]   z\n);\n  genvar i;\n  generate\n    for (i = 0; i < N; i = i + 1) begin : lane\n      ph_lane #(.W(W)) u (.clk(clk), .a(a[i*W +: W]), .b(b[i*W +: W]), .y(y[i*W +: W]));\n    end\n  endgenerate\n  ph_lane #(.W(2*W)) wide (.clk(clk), .a(a[2*W-1:0]), .b(b[2*W-1:0]), .y(z));\nendmodule\n",
+   "origin": "generated",
+   "ground_truth": null
+  },
+  {
+   "name": "tc_legacy_cmp4",
+   "generator": "legacy",
+   "params": {},
+   "top": "cmp4",
+   "features": [
+    "FEAT-COMB"
+   ],
+   "sequential": false,
+   "reset": null,
+   "depth": 3,
+   "expect": {},
+   "source": "// Legacy test: 4-bit comparator with equality and greater-than outputs.\nmodule cmp4 (\n  input  [3:0] a, b,\n  output       eq,\n  output       gt\n);\n  assign eq = (a == b)\n  assign gt = (a > b);\nendmodule\n",
+   "origin": "legacy",
+   "ground_truth": "test_bug"
+  },
+  {
+   "name": "tc_legacy_gray",
+   "generator": "legacy",
+   "params": {},
+   "top": "gray_counter_top",
+   "features": [
+    "FEAT-SEQ"
+   ],
+   "sequential": true,
+   "reset": "rst",
+   "depth": 6,
+   "expect": {},
+   "source": "// Legacy test: binary counter with Gray-coded output.\nmodule gray_counter #(parameter W = 4) (\n  input              clk, rst,\n  output reg [W-1:0] g\n);\n  reg [W-1:0] b;\n  always @(posedge clk)\n    if (rst) begin b <= {W{1'b0}}; g <= {W{1'b0}}; end\n    else begin b <= b + 1'b1; g <= (b + 1'b1) ^ ((b + 1'b1) >> 1); end\nendmodule\n",
+   "origin": "legacy",
+   "ground_truth": "test_bug"
+  },
+  {
+   "name": "tc_legacy_parity",
+   "generator": "legacy",
+   "params": {},
+   "top": "parity32",
+   "features": [
+    "FEAT-COMB"
+   ],
+   "sequential": false,
+   "reset": null,
+   "depth": 3,
+   "expect": {
+    "xc7": [
+     "LUT>=1",
+     "DSP>=1"
+    ]
+   },
+   "source": "// Legacy test: 32-bit parity and all-ones/all-zeros detection.\n// Note: expectation block in the manifest was copied from the multiplier test.\nmodule parity32 (\n  input  [31:0] x,\n  output        par,\n  output        ones,\n  output        zeros\n);\n  assign par   = ^x;\n  assign ones  = &x;\n  assign zeros = ~|x;\nendmodule\n",
+   "origin": "legacy",
+   "ground_truth": "test_bug"
+  }
+ ],
+ "golden": {
+  "tc_addsub|synth": {},
+  "tc_addsub|synth_xilinx -family xc7": {
+   "CARRY": 10,
+   "IO": 50,
+   "LUT": 18
+  },
+  "tc_addsub|synth_xilinx -family xc7 -dff": {
+   "CARRY": 10,
+   "IO": 50,
+   "LUT": 17
+  },
+  "tc_addsub|synth_xilinx -family xc7 -flatten": {
+   "CARRY": 10,
+   "IO": 50,
+   "LUT": 18
+  },
+  "tc_addsub|synth_xilinx -family xc7 -flatten -noiopad": {
+   "CARRY": 10,
+   "LUT": 17
+  },
+  "tc_addsub|synth_xilinx -family xc7 -noiopad": {
+   "CARRY": 10,
+   "LUT": 17
+  },
+  "tc_addsub|synth_xilinx -family xc7 -widemux 5": {
+   "CARRY": 10,
+   "IO": 50,
+   "LUT": 48
+  },
+  "tc_bram|synth": {
+   "FF": 1040
+  },
+  "tc_bram|synth_xilinx -family xc7": {
+   "BRAM": 1,
+   "IO": 41
+  },
+  "tc_bram|synth_xilinx -family xc7 -dff": {
+   "BRAM": 1,
+   "IO": 41
+  },
+  "tc_bram|synth_xilinx -family xc7 -flatten": {
+   "BRAM": 1,
+   "IO": 41
+  },
+  "tc_bram|synth_xilinx -family xc7 -flatten -noiopad": {
+   "BRAM": 1,
+   "IO": 1
+  },
+  "tc_bram|synth_xilinx -family xc7 -noiopad": {
+   "BRAM": 1,
+   "IO": 1
+  },
+  "tc_bram|synth_xilinx -family xc7 -widemux 5": {
+   "BRAM": 1,
+   "IO": 41
+  },
+  "tc_comb_mux|synth": {},
+  "tc_comb_mux|synth_xilinx -family xc7": {
+   "IO": 50,
+   "LUT": 14
+  },
+  "tc_comb_mux|synth_xilinx -family xc7 -dff": {
+   "IO": 50,
+   "LUT": 14
+  },
+  "tc_comb_mux|synth_xilinx -family xc7 -flatten": {
+   "IO": 50,
+   "LUT": 14
+  },
+  "tc_comb_mux|synth_xilinx -family xc7 -flatten -noiopad": {
+   "LUT": 14
+  },
+  "tc_comb_mux|synth_xilinx -family xc7 -noiopad": {
+   "LUT": 14
+  },
+  "tc_comb_mux|synth_xilinx -family xc7 -widemux 5": {
+   "IO": 50,
+   "LUT": 14
+  },
+  "tc_counter|synth": {
+   "FF": 8
+  },
+  "tc_counter|synth_xilinx -family xc7": {
+   "CARRY": 2,
+   "FF": 8,
+   "IO": 14,
+   "LUT": 12
+  },
+  "tc_counter|synth_xilinx -family xc7 -dff": {
+   "CARRY": 2,
+   "FF": 8,
+   "IO": 14,
+   "LUT": 11
+  },
+  "tc_counter|synth_xilinx -family xc7 -flatten": {
+   "CARRY": 2,
+   "FF": 8,
+   "IO": 14,
+   "LUT": 12
+  },
+  "tc_counter|synth_xilinx -family xc7 -flatten -noiopad": {
+   "CARRY": 2,
+   "FF": 8,
+   "IO": 1,
+   "LUT": 11
+  },
+  "tc_counter|synth_xilinx -family xc7 -noiopad": {
+   "CARRY": 2,
+   "FF": 8,
+   "IO": 1,
+   "LUT": 11
+  },
+  "tc_counter|synth_xilinx -family xc7 -widemux 5": {
+   "CARRY": 4,
+   "FF": 8,
+   "IO": 14,
+   "LUT": 8
+  },
+  "tc_fsm_seqdet|synth": {
+   "FF": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7": {
+   "FF": 5,
+   "IO": 5,
+   "LUT": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7 -dff": {
+   "FF": 5,
+   "IO": 5,
+   "LUT": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7 -flatten": {
+   "FF": 5,
+   "IO": 5,
+   "LUT": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7 -flatten -noiopad": {
+   "FF": 5,
+   "IO": 1,
+   "LUT": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7 -noiopad": {
+   "FF": 5,
+   "IO": 1,
+   "LUT": 5
+  },
+  "tc_fsm_seqdet|synth_xilinx -family xc7 -widemux 5": {
+   "FF": 5,
+   "IO": 5,
+   "LUT": 5
+  },
+  "tc_legacy_parity|synth": {},
+  "tc_legacy_parity|synth_xilinx -family xc7": {
+   "IO": 35,
+   "LUT": 33
+  },
+  "tc_legacy_parity|synth_xilinx -family xc7 -dff": {
+   "IO": 35,
+   "LUT": 33
+  },
+  "tc_legacy_parity|synth_xilinx -family xc7 -flatten": {
+   "IO": 35,
+   "LUT": 33
+  },
+  "tc_legacy_parity|synth_xilinx -family xc7 -flatten -noiopad": {
+   "LUT": 33
+  },
+  "tc_legacy_parity|synth_xilinx -family xc7 -noiopad": {
+   "LUT": 33
+  },
+  "tc_legacy_parity|synth_xilinx -family xc7 -widemux 5": {
+   "IO": 35,
+   "LUT": 33
+  },
+  "tc_lutram|synth": {
+   "FF": 128
+  },
+  "tc_lutram|synth_xilinx -family xc7": {
+   "IO": 27,
+   "LUTRAM": 2
+  },
+  "tc_lutram|synth_xilinx -family xc7 -dff": {
+   "IO": 27,
+   "LUTRAM": 2
+  },
+  "tc_lutram|synth_xilinx -family xc7 -flatten": {
+   "IO": 27,
+   "LUTRAM": 2
+  },
+  "tc_lutram|synth_xilinx -family xc7 -flatten -noiopad": {
+   "IO": 1,
+   "LUTRAM": 2
+  },
+  "tc_lutram|synth_xilinx -family xc7 -noiopad": {
+   "IO": 1,
+   "LUTRAM": 2
+  },
+  "tc_lutram|synth_xilinx -family xc7 -widemux 5": {
+   "IO": 27,
+   "LUTRAM": 2
+  },
+  "tc_macc|synth": {
+   "FF": 16
+  },
+  "tc_macc|synth_xilinx -family xc7": {
+   "DSP": 1,
+   "IO": 31
+  },
+  "tc_macc|synth_xilinx -family xc7 -dff": {
+   "DSP": 1,
+   "IO": 31
+  },
+  "tc_macc|synth_xilinx -family xc7 -flatten": {
+   "DSP": 1,
+   "IO": 31
+  },
+  "tc_macc|synth_xilinx -family xc7 -flatten -noiopad": {
+   "DSP": 1,
+   "IO": 1
+  },
+  "tc_macc|synth_xilinx -family xc7 -noiopad": {
+   "DSP": 1,
+   "IO": 1
+  },
+  "tc_macc|synth_xilinx -family xc7 -widemux 5": {
+   "DSP": 1,
+   "IO": 31
+  },
+  "tc_mul_reg|synth": {
+   "FF": 12
+  },
+  "tc_mul_reg|synth_xilinx -family xc7": {
+   "DSP": 1,
+   "IO": 26
+  },
+  "tc_mul_reg|synth_xilinx -family xc7 -dff": {
+   "DSP": 1,
+   "IO": 26
+  },
+  "tc_mul_reg|synth_xilinx -family xc7 -flatten": {
+   "DSP": 1,
+   "IO": 26
+  },
+  "tc_mul_reg|synth_xilinx -family xc7 -flatten -noiopad": {
+   "DSP": 1,
+   "IO": 1
+  },
+  "tc_mul_reg|synth_xilinx -family xc7 -noiopad": {
+   "DSP": 1,
+   "IO": 1
+  },
+  "tc_mul_reg|synth_xilinx -family xc7 -widemux 5": {
+   "DSP": 1,
+   "IO": 26
+  },
+  "tc_param_hier|synth_xilinx -family xc7": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 46,
+   "LUT": 36
+  },
+  "tc_param_hier|synth_xilinx -family xc7 -dff": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 46,
+   "LUT": 36
+  },
+  "tc_param_hier|synth_xilinx -family xc7 -flatten": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 46,
+   "LUT": 25
+  },
+  "tc_param_hier|synth_xilinx -family xc7 -flatten -noiopad": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 1,
+   "LUT": 25
+  },
+  "tc_param_hier|synth_xilinx -family xc7 -noiopad": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 1,
+   "LUT": 36
+  },
+  "tc_param_hier|synth_xilinx -family xc7 -widemux 5": {
+   "CARRY": 5,
+   "FF": 20,
+   "IO": 46,
+   "LUT": 36
+  },
+  "tc_shreg|synth": {
+   "FF": 32
+  },
+  "tc_shreg|synth_xilinx -family xc7": {
+   "IO": 7,
+   "SRL": 2
+  },
+  "tc_shreg|synth_xilinx -family xc7 -dff": {
+   "IO": 7,
+   "SRL": 2
+  },
+  "tc_shreg|synth_xilinx -family xc7 -flatten": {
+   "IO": 7,
+   "SRL": 2
+  },
+  "tc_shreg|synth_xilinx -family xc7 -flatten -noiopad": {
+   "IO": 1,
+   "SRL": 2
+  },
+  "tc_shreg|synth_xilinx -family xc7 -noiopad": {
+   "IO": 1,
+   "SRL": 2
+  },
+  "tc_shreg|synth_xilinx -family xc7 -widemux 5": {
+   "IO": 7,
+   "SRL": 2
+  }
+ },
+ "results": [
+  {
+   "job_id": "tc_comb_mux__generic",
+   "testcase": "tc_comb_mux",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "$_ANDNOT_": 3,
+    "$_AND_": 15,
+    "$_MUX_": 9,
+    "$_NAND_": 52,
+    "$_ORNOT_": 1,
+    "$_OR_": 12,
+    "$_XNOR_": 6,
+    "$_XOR_": 1
+   },
+   "families": {},
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 4.26,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_comb_mux__xc7",
+   "testcase": "tc_comb_mux",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 38,
+    "LUT2": 3,
+    "LUT3": 2,
+    "LUT6": 9,
+    "OBUF": 12
+   },
+   "families": {
+    "IO": 50,
+    "LUT": 14
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 34.6,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_comb_mux__xc7_flatten",
+   "testcase": "tc_comb_mux",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 38,
+    "LUT2": 3,
+    "LUT3": 2,
+    "LUT6": 9,
+    "OBUF": 12
+   },
+   "families": {
+    "IO": 50,
+    "LUT": 14
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 33.15,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_comb_mux__xc7_dff",
+   "testcase": "tc_comb_mux",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 38,
+    "LUT2": 3,
+    "LUT3": 2,
+    "LUT6": 9,
+    "OBUF": 12
+   },
+   "families": {
+    "IO": 50,
+    "LUT": 14
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 26.35,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_comb_mux__xc7_flat_noio",
+   "testcase": "tc_comb_mux",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "LUT2": 3,
+    "LUT3": 2,
+    "LUT6": 9
+   },
+   "families": {
+    "LUT": 14
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 36.97,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_addsub__generic",
+   "testcase": "tc_addsub",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "$_ANDNOT_": 15,
+    "$_AND_": 8,
+    "$_NAND_": 40,
+    "$_NOR_": 14,
+    "$_ORNOT_": 1,
+    "$_OR_": 7,
+    "$_XNOR_": 21,
+    "$_XOR_": 23
+   },
+   "families": {},
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 3.13,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_addsub__xc7",
+   "testcase": "tc_addsub",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "CARRY4": 10,
+    "IBUF": 33,
+    "INV": 16,
+    "LUT2": 3,
+    "LUT4": 15,
+    "OBUF": 17
+   },
+   "families": {
+    "CARRY": 10,
+    "IO": 50,
+    "LUT": 18
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 37.95,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_addsub__xc7_flatten",
+   "testcase": "tc_addsub",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_golden",
+   "message": "QoR drift vs golden: CARRY decreased (10->0); MUXF increased (0->6); LUT increased >25% (18->64) | expectation: expected CARRY>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 33,
+    "LUT2": 4,
+    "LUT3": 10,
+    "LUT4": 7,
+    "LUT5": 18,
+    "LUT6": 25,
+    "MUXF7": 4,
+    "MUXF8": 2,
+    "OBUF": 17
+   },
+   "families": {
+    "IO": 50,
+    "LUT": 64,
+    "MUXF": 6
+   },
+   "qor_failures": [
+    "expected CARRY>=1, got 0"
+   ],
+   "golden_match": false,
+   "excerpt": "cells: {\"IO\": 50, \"LUT\": 64, \"MUXF\": 6}",
+   "duration_s": 38.55,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-CARRY-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_addsub__xc7_dff",
+   "testcase": "tc_addsub",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "CARRY4": 10,
+    "IBUF": 33,
+    "INV": 17,
+    "LUT2": 2,
+    "LUT4": 15,
+    "OBUF": 17
+   },
+   "families": {
+    "CARRY": 10,
+    "IO": 50,
+    "LUT": 17
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 34.92,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_addsub__xc7_flat_noio",
+   "testcase": "tc_addsub",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_golden",
+   "message": "QoR drift vs golden: CARRY decreased (10->0); MUXF increased (0->6); LUT increased >25% (17->64) | expectation: expected CARRY>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "LUT2": 5,
+    "LUT3": 8,
+    "LUT4": 8,
+    "LUT5": 17,
+    "LUT6": 26,
+    "MUXF7": 4,
+    "MUXF8": 2
+   },
+   "families": {
+    "LUT": 64,
+    "MUXF": 6
+   },
+   "qor_failures": [
+    "expected CARRY>=1, got 0"
+   ],
+   "golden_match": false,
+   "excerpt": "cells: {\"LUT\": 64, \"MUXF\": 6}",
+   "duration_s": 41.09,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-CARRY-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_mul_reg__generic",
+   "testcase": "tc_mul_reg",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 2 cycles from reset",
+   "cells": {
+    "$_ANDNOT_": 1,
+    "$_AND_": 36,
+    "$_DFF_P_": 12,
+    "$_NAND_": 75,
+    "$_ORNOT_": 2,
+    "$_OR_": 3,
+    "$_XNOR_": 9,
+    "$_XOR_": 43
+   },
+   "families": {
+    "FF": 12
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 2.85,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_mul_reg__xc7",
+   "testcase": "tc_mul_reg",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 2 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 13,
+    "OBUF": 12
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 26
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 38.26,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_mul_reg__xc7_flatten",
+   "testcase": "tc_mul_reg",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on p",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on p",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 13,
+    "OBUF": 12
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 26
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 7758 variables and 22319 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 38.28,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-DSP-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_mul_reg__xc7_dff",
+   "testcase": "tc_mul_reg",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 2 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 13,
+    "OBUF": 12
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 26
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 34.55,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_mul_reg__xc7_flat_noio",
+   "testcase": "tc_mul_reg",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on p",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on p",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 1
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 7758 variables and 22319 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 38.99,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-DSP-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_macc__generic",
+   "testcase": "tc_macc",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "$_AND_": 46,
+    "$_NAND_": 97,
+    "$_NOR_": 3,
+    "$_OR_": 12,
+    "$_SDFF_PP0_": 16,
+    "$_XNOR_": 20,
+    "$_XOR_": 64
+   },
+   "families": {
+    "FF": 16
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 3.12,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_macc__xc7",
+   "testcase": "tc_macc",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 14,
+    "OBUF": 16
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 31
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 38.42,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_macc__xc7_flatten",
+   "testcase": "tc_macc",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on acc",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on acc",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 14,
+    "OBUF": 16
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 31
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 19370 variables and 54720 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 38.42,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-DSP-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_macc__xc7_dff",
+   "testcase": "tc_macc",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1,
+    "IBUF": 14,
+    "OBUF": 16
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 31
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 34.28,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_macc__xc7_flat_noio",
+   "testcase": "tc_macc",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on acc",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on acc",
+   "cells": {
+    "BUFG": 1,
+    "DSP48E1": 1
+   },
+   "families": {
+    "DSP": 1,
+    "IO": 1
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 19370 variables and 54720 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 38.23,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-DSP-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_fsm_seqdet__generic",
+   "testcase": "tc_fsm_seqdet",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 8 cycles from reset",
+   "cells": {
+    "$_ANDNOT_": 4,
+    "$_AND_": 2,
+    "$_DFF_P_": 4,
+    "$_NOR_": 3,
+    "$_NOT_": 1,
+    "$_OR_": 2,
+    "$_SDFF_PP0_": 1
+   },
+   "families": {
+    "FF": 5
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 2.78,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_fsm_seqdet__xc7",
+   "testcase": "tc_fsm_seqdet",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 8 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 5,
+    "IBUF": 3,
+    "LUT2": 1,
+    "LUT3": 1,
+    "LUT4": 2,
+    "LUT5": 1,
+    "OBUF": 1
+   },
+   "families": {
+    "FF": 5,
+    "IO": 5,
+    "LUT": 5
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 42.34,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_fsm_seqdet__xc7_flatten",
+   "testcase": "tc_fsm_seqdet",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 8 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 5,
+    "IBUF": 3,
+    "LUT2": 1,
+    "LUT3": 1,
+    "LUT4": 2,
+    "LUT5": 1,
+    "OBUF": 1
+   },
+   "families": {
+    "FF": 5,
+    "IO": 5,
+    "LUT": 5
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 42.25,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_fsm_seqdet__xc7_dff",
+   "testcase": "tc_fsm_seqdet",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on hit",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on hit",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 5,
+    "IBUF": 3,
+    "LUT2": 1,
+    "LUT3": 1,
+    "LUT4": 2,
+    "LUT5": 1,
+    "OBUF": 1
+   },
+   "families": {
+    "FF": 5,
+    "IO": 5,
+    "LUT": 5
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 4732 variables and 12470 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 36.21,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-FSM-DFF"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_fsm_seqdet__xc7_flat_noio",
+   "testcase": "tc_fsm_seqdet",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 8 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 5,
+    "LUT2": 1,
+    "LUT3": 1,
+    "LUT4": 2,
+    "LUT5": 1
+   },
+   "families": {
+    "FF": 5,
+    "IO": 1,
+    "LUT": 5
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 37.81,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_counter__generic",
+   "testcase": "tc_counter",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 6 cycles from reset",
+   "cells": {
+    "$_ANDNOT_": 1,
+    "$_AND_": 10,
+    "$_MUX_": 1,
+    "$_NAND_": 14,
+    "$_NOR_": 4,
+    "$_NOT_": 1,
+    "$_ORNOT_": 8,
+    "$_OR_": 2,
+    "$_SDFFE_PP0P_": 8,
+    "$_XNOR_": 7,
+    "$_XOR_": 2
+   },
+   "families": {
+    "FF": 8
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 2.76,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_counter__xc7",
+   "testcase": "tc_counter",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 6 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "CARRY4": 2,
+    "FDRE": 8,
+    "IBUF": 4,
+    "INV": 2,
+    "LUT2": 7,
+    "LUT3": 2,
+    "LUT4": 1,
+    "LUT6": 2,
+    "OBUF": 9
+   },
+   "families": {
+    "CARRY": 2,
+    "FF": 8,
+    "IO": 14,
+    "LUT": 12
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 18.12,
+   "first_attempt": {
+    "status": "fail",
+    "kind": "timeout",
+    "message": "job exceeded timeout of 150s and was killed"
+   },
+   "ground_truth": [
+    {
+     "label": "infrastructure",
+     "detail": "hang"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_counter__xc7_flatten",
+   "testcase": "tc_counter",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_golden",
+   "message": "QoR drift vs golden: CARRY decreased (2->0)",
+   "equiv": "bounded",
+   "equiv_note": "bounded 6 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 8,
+    "IBUF": 4,
+    "INV": 1,
+    "LUT2": 1,
+    "LUT3": 3,
+    "LUT4": 2,
+    "LUT5": 4,
+    "LUT6": 3,
+    "OBUF": 9
+   },
+   "families": {
+    "FF": 8,
+    "IO": 14,
+    "LUT": 13
+   },
+   "qor_failures": [],
+   "golden_match": false,
+   "excerpt": "cells: {\"FF\": 8, \"IO\": 14, \"LUT\": 13}",
+   "duration_s": 39.34,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-CARRY-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_counter__xc7_dff",
+   "testcase": "tc_counter",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 6 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "CARRY4": 2,
+    "FDRE": 8,
+    "IBUF": 4,
+    "INV": 2,
+    "LUT2": 8,
+    "LUT4": 1,
+    "LUT6": 2,
+    "OBUF": 9
+   },
+   "families": {
+    "CARRY": 2,
+    "FF": 8,
+    "IO": 14,
+    "LUT": 11
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 37.04,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_counter__xc7_flat_noio",
+   "testcase": "tc_counter",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_golden",
+   "message": "QoR drift vs golden: CARRY decreased (2->0)",
+   "equiv": "bounded",
+   "equiv_note": "bounded 6 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "FDRE": 8,
+    "INV": 1,
+    "LUT3": 3,
+    "LUT4": 2,
+    "LUT5": 3,
+    "LUT6": 1
+   },
+   "families": {
+    "FF": 8,
+    "IO": 1,
+    "LUT": 9
+   },
+   "qor_failures": [],
+   "golden_match": false,
+   "excerpt": "cells: {\"FF\": 8, \"IO\": 1, \"LUT\": 9}",
+   "duration_s": 37.86,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-CARRY-FLATTEN"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_shreg__generic",
+   "testcase": "tc_shreg",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 19 cycles from reset",
+   "cells": {
+    "$_DFFE_PP_": 32
+   },
+   "families": {
+    "FF": 32
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 0.99,
+   "first_attempt": {
+    "status": "fail",
+    "kind": "infra",
+    "message": "worker died (exit 3): OSError: [Errno 28] No space left on device: 'netlist.json'"
+   },
+   "ground_truth": [
+    {
+     "label": "infrastructure",
+     "detail": "enospc"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_shreg__xc7",
+   "testcase": "tc_shreg",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 19 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 4,
+    "OBUF": 2,
+    "SRL16E": 2
+   },
+   "families": {
+    "IO": 7,
+    "SRL": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 74.96,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_shreg__xc7_flatten",
+   "testcase": "tc_shreg",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 19 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 4,
+    "OBUF": 2,
+    "SRL16E": 2
+   },
+   "families": {
+    "IO": 7,
+    "SRL": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 75.07,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_shreg__xc7_dff",
+   "testcase": "tc_shreg",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 19 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 4,
+    "OBUF": 2,
+    "SRL16E": 2
+   },
+   "families": {
+    "IO": 7,
+    "SRL": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 73.53,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_shreg__xc7_flat_noio",
+   "testcase": "tc_shreg",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 19 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "SRL16E": 2
+   },
+   "families": {
+    "IO": 1,
+    "SRL": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 75.51,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_lutram__generic",
+   "testcase": "tc_lutram",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 4 cycles from reset",
+   "cells": {
+    "$_ANDNOT_": 12,
+    "$_AND_": 49,
+    "$_DFFE_PP_": 128,
+    "$_MUX_": 80,
+    "$_NAND_": 40,
+    "$_NOR_": 24,
+    "$_NOT_": 4,
+    "$_ORNOT_": 16,
+    "$_OR_": 8
+   },
+   "families": {
+    "FF": 128
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 10.04,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_lutram__xc7",
+   "testcase": "tc_lutram",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 4 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 18,
+    "OBUF": 8,
+    "RAM32M": 2
+   },
+   "families": {
+    "IO": 27,
+    "LUTRAM": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 83.0,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_lutram__xc7_flatten",
+   "testcase": "tc_lutram",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 4 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 18,
+    "OBUF": 8,
+    "RAM32M": 2
+   },
+   "families": {
+    "IO": 27,
+    "LUTRAM": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 81.87,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_lutram__xc7_dff",
+   "testcase": "tc_lutram",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 4 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 18,
+    "OBUF": 8,
+    "RAM32M": 2
+   },
+   "families": {
+    "IO": 27,
+    "LUTRAM": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 78.11,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_lutram__xc7_flat_noio",
+   "testcase": "tc_lutram",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "equiv_fail",
+   "message": "equivalence check failed: counterexample: outputs differ on q",
+   "equiv": "fail",
+   "equiv_note": "counterexample: outputs differ on q",
+   "cells": {
+    "BUFG": 1,
+    "RAM32M": 2
+   },
+   "families": {
+    "IO": 1,
+    "LUTRAM": 2
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "\nSolving problem with 131499 variables and 367092 clauses..\nSAT proof finished - model found: FAIL!\n",
+   "duration_s": 25.93,
+   "ground_truth": [
+    {
+     "label": "tool_defect",
+     "detail": "TD-LUTRAM-NOIOPAD"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_bram__generic",
+   "testcase": "tc_bram",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "$_ANDNOT_": 40,
+    "$_AND_": 285,
+    "$_DFFE_PP_": 1024,
+    "$_DFF_P_": 16,
+    "$_MUX_": 725,
+    "$_NAND_": 261,
+    "$_NOR_": 80,
+    "$_NOT_": 6,
+    "$_ORNOT_": 158,
+    "$_OR_": 122
+   },
+   "families": {
+    "FF": 1040
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 28.19,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_bram__xc7",
+   "testcase": "tc_bram",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "skipped",
+   "equiv_note": "netlist contains ['BRAM']; no trusted SAT model",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 24,
+    "OBUF": 16,
+    "RAMB18E1": 1
+   },
+   "families": {
+    "BRAM": 1,
+    "IO": 41
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 21.86,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_bram__xc7_flatten",
+   "testcase": "tc_bram",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "skipped",
+   "equiv_note": "netlist contains ['BRAM']; no trusted SAT model",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 24,
+    "OBUF": 16,
+    "RAMB18E1": 1
+   },
+   "families": {
+    "BRAM": 1,
+    "IO": 41
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 20.11,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_bram__xc7_dff",
+   "testcase": "tc_bram",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "skipped",
+   "equiv_note": "netlist contains ['BRAM']; no trusted SAT model",
+   "cells": {
+    "BUFG": 1,
+    "IBUF": 24,
+    "OBUF": 16,
+    "RAMB18E1": 1
+   },
+   "families": {
+    "BRAM": 1,
+    "IO": 41
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 18.37,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_bram__xc7_flat_noio",
+   "testcase": "tc_bram",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "skipped",
+   "equiv_note": "netlist contains ['BRAM']; no trusted SAT model",
+   "cells": {
+    "BUFG": 1,
+    "RAMB18E1": 1
+   },
+   "families": {
+    "BRAM": 1,
+    "IO": 1
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 21.76,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_param_hier__generic",
+   "testcase": "tc_param_hier",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "crash",
+   "message": "ERROR: Assert `GetSize(sig) == width' failed in pass wreduce.",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "Optimizing module param_hier.\nOptimizing module $paramod\\ph_lane\\W=s32'00000000000000000000000000001000.\n\n3.8.9. Finished fast OPT passes. (There is nothing left to do.)\n\n3.9. Executing WREDUCE pass (reducing word size of cells).\nERROR: Assert `GetSize(sig) == width' failed in pass wreduce.",
+   "duration_s": 2.4,
+   "ground_truth": [
+    {
+     "label": "known_issue",
+     "detail": "KDB-0001"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_param_hier__xc7",
+   "testcase": "tc_param_hier",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "CARRY4": 5,
+    "FDRE": 20,
+    "IBUF": 25,
+    "LUT2": 36,
+    "OBUF": 20
+   },
+   "families": {
+    "CARRY": 5,
+    "FF": 20,
+    "IO": 46,
+    "LUT": 36
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 23.93,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_param_hier__xc7_flatten",
+   "testcase": "tc_param_hier",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "$scopeinfo": 4,
+    "BUFG": 1,
+    "CARRY4": 5,
+    "FDRE": 20,
+    "IBUF": 25,
+    "LUT2": 25,
+    "OBUF": 20
+   },
+   "families": {
+    "CARRY": 5,
+    "FF": 20,
+    "IO": 46,
+    "LUT": 25
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 24.6,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_param_hier__xc7_dff",
+   "testcase": "tc_param_hier",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "BUFG": 1,
+    "CARRY4": 5,
+    "FDRE": 20,
+    "IBUF": 25,
+    "LUT2": 36,
+    "OBUF": 20
+   },
+   "families": {
+    "CARRY": 5,
+    "FF": 20,
+    "IO": 46,
+    "LUT": 36
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 24.21,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_param_hier__xc7_flat_noio",
+   "testcase": "tc_param_hier",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "bounded",
+   "equiv_note": "bounded 3 cycles from reset",
+   "cells": {
+    "$scopeinfo": 4,
+    "BUFG": 1,
+    "CARRY4": 5,
+    "FDRE": 20,
+    "LUT2": 25
+   },
+   "families": {
+    "CARRY": 5,
+    "FF": 20,
+    "IO": 1,
+    "LUT": 25
+   },
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 26.06,
+   "ground_truth": []
+  },
+  {
+   "job_id": "tc_legacy_cmp4__generic",
+   "testcase": "tc_legacy_cmp4",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "parse_error",
+   "message": "design.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "duration_s": 1.25,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_cmp4__xc7",
+   "testcase": "tc_legacy_cmp4",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "parse_error",
+   "message": "design.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "duration_s": 2.46,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_cmp4__xc7_flatten",
+   "testcase": "tc_legacy_cmp4",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "parse_error",
+   "message": "design.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "duration_s": 1.25,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_cmp4__xc7_dff",
+   "testcase": "tc_legacy_cmp4",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "parse_error",
+   "message": "design.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "duration_s": 1.21,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_cmp4__xc7_flat_noio",
+   "testcase": "tc_legacy_cmp4",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "parse_error",
+   "message": "design.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+   "duration_s": 1.32,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_gray__generic",
+   "testcase": "tc_legacy_gray",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "elab_error",
+   "message": "ERROR: Module `gray_counter_top' not found!",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+   "duration_s": 1.4,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_gray__xc7",
+   "testcase": "tc_legacy_gray",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "elab_error",
+   "message": "ERROR: Module `gray_counter_top' not found!",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+   "duration_s": 1.16,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_gray__xc7_flatten",
+   "testcase": "tc_legacy_gray",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "elab_error",
+   "message": "ERROR: Module `gray_counter_top' not found!",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+   "duration_s": 1.16,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_gray__xc7_dff",
+   "testcase": "tc_legacy_gray",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "elab_error",
+   "message": "ERROR: Module `gray_counter_top' not found!",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+   "duration_s": 1.15,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_gray__xc7_flat_noio",
+   "testcase": "tc_legacy_gray",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "elab_error",
+   "message": "ERROR: Module `gray_counter_top' not found!",
+   "equiv": "not_run",
+   "equiv_note": "",
+   "cells": {},
+   "families": {},
+   "qor_failures": [],
+   "golden_match": null,
+   "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+   "duration_s": 1.0,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_parity__generic",
+   "testcase": "tc_legacy_parity",
+   "flow": "generic",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "pass",
+   "kind": null,
+   "message": "",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "$_AND_": 46,
+    "$_NOR_": 16,
+    "$_XNOR_": 20,
+    "$_XOR_": 11
+   },
+   "families": {},
+   "qor_failures": [],
+   "golden_match": true,
+   "excerpt": "",
+   "duration_s": 3.25,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_parity__xc7",
+   "testcase": "tc_legacy_parity",
+   "flow": "xc7",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_expect",
+   "message": "QoR expectation unmet: expected DSP>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 32,
+    "LUT2": 12,
+    "LUT4": 9,
+    "LUT5": 6,
+    "LUT6": 6,
+    "OBUF": 3
+   },
+   "families": {
+    "IO": 35,
+    "LUT": 33
+   },
+   "qor_failures": [
+    "expected DSP>=1, got 0"
+   ],
+   "golden_match": true,
+   "excerpt": "cells: {\"IO\": 35, \"LUT\": 33}",
+   "duration_s": 32.9,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_parity__xc7_flatten",
+   "testcase": "tc_legacy_parity",
+   "flow": "xc7_flatten",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_expect",
+   "message": "QoR expectation unmet: expected DSP>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 32,
+    "LUT2": 12,
+    "LUT4": 9,
+    "LUT5": 6,
+    "LUT6": 6,
+    "OBUF": 3
+   },
+   "families": {
+    "IO": 35,
+    "LUT": 33
+   },
+   "qor_failures": [
+    "expected DSP>=1, got 0"
+   ],
+   "golden_match": true,
+   "excerpt": "cells: {\"IO\": 35, \"LUT\": 33}",
+   "duration_s": 31.79,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_parity__xc7_dff",
+   "testcase": "tc_legacy_parity",
+   "flow": "xc7_dff",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_expect",
+   "message": "QoR expectation unmet: expected DSP>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "IBUF": 32,
+    "LUT2": 12,
+    "LUT4": 9,
+    "LUT5": 6,
+    "LUT6": 6,
+    "OBUF": 3
+   },
+   "families": {
+    "IO": 35,
+    "LUT": 33
+   },
+   "qor_failures": [
+    "expected DSP>=1, got 0"
+   ],
+   "golden_match": true,
+   "excerpt": "cells: {\"IO\": 35, \"LUT\": 33}",
+   "duration_s": 34.09,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  },
+  {
+   "job_id": "tc_legacy_parity__xc7_flat_noio",
+   "testcase": "tc_legacy_parity",
+   "flow": "xc7_flat_noio",
+   "build": "buggy",
+   "attempt": 1,
+   "status": "fail",
+   "kind": "qor_expect",
+   "message": "QoR expectation unmet: expected DSP>=1, got 0",
+   "equiv": "proven",
+   "equiv_note": "full combinational proof",
+   "cells": {
+    "LUT2": 12,
+    "LUT4": 9,
+    "LUT5": 6,
+    "LUT6": 6
+   },
+   "families": {
+    "LUT": 33
+   },
+   "qor_failures": [
+    "expected DSP>=1, got 0"
+   ],
+   "golden_match": true,
+   "excerpt": "cells: {\"LUT\": 33}",
+   "duration_s": 32.22,
+   "ground_truth": [
+    {
+     "label": "test_bug",
+     "detail": "testcase"
+    }
+   ]
+  }
+ ],
+ "clusters": [
+  {
+   "id": "C01",
+   "evidence": {
+    "signature": "89ccaf7935",
+    "kind": "parse_error",
+    "message": "design.v:<line>: ERROR: syntax error, unexpected TOK_ASSIGN",
+    "excerpt": " Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+    "testcases": [
+     "tc_legacy_cmp4"
+    ],
+    "flows_failed": [
+     "generic",
+     "xc7",
+     "xc7_dff",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "flows_passed": [],
+    "fingerprint": [],
+    "baseline_failed": true,
+    "golden_match": null,
+    "families": [],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": true
+   },
+   "members": [
+    "tc_legacy_cmp4__generic",
+    "tc_legacy_cmp4__xc7",
+    "tc_legacy_cmp4__xc7_flatten",
+    "tc_legacy_cmp4__xc7_dff",
+    "tc_legacy_cmp4__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "test_bug",
+    "confidence": 0.9,
+    "component": "testsuite: Verilog source",
+    "rationale": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "test_bug",
+    "confidence": 0.9,
+    "component": "testsuite: Verilog source",
+    "rationale": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": "DEF-0001"
+  },
+  {
+   "id": "C02",
+   "evidence": {
+    "signature": "e68be587fe",
+    "kind": "elab_error",
+    "message": "ERROR: Module `gray_counter_top' not found!",
+    "excerpt": "1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+    "testcases": [
+     "tc_legacy_gray"
+    ],
+    "flows_failed": [
+     "generic",
+     "xc7",
+     "xc7_dff",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "flows_passed": [],
+    "fingerprint": [],
+    "baseline_failed": true,
+    "golden_match": null,
+    "families": [],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": true
+   },
+   "members": [
+    "tc_legacy_gray__generic",
+    "tc_legacy_gray__xc7",
+    "tc_legacy_gray__xc7_flatten",
+    "tc_legacy_gray__xc7_dff",
+    "tc_legacy_gray__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "test_bug",
+    "confidence": 0.9,
+    "component": "testsuite: testcase metadata",
+    "rationale": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "test_bug",
+    "confidence": 0.9,
+    "component": "testsuite: testcase metadata",
+    "rationale": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": "DEF-0002"
+  },
+  {
+   "id": "C03",
+   "evidence": {
+    "signature": "08bd883ede",
+    "kind": "qor_expect",
+    "message": "QoR expectation unmet: DSP>=1",
+    "excerpt": "cells: {\"IO\": 35, \"LUT\": 33}",
+    "testcases": [
+     "tc_legacy_parity"
+    ],
+    "flows_failed": [
+     "xc7",
+     "xc7_dff",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "flows_passed": [
+     "generic"
+    ],
+    "fingerprint": [
+     "synth_xilinx"
+    ],
+    "baseline_failed": true,
+    "golden_match": true,
+    "families": [],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_legacy_parity__xc7",
+    "tc_legacy_parity__xc7_flatten",
+    "tc_legacy_parity__xc7_dff",
+    "tc_legacy_parity__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "test_bug",
+    "confidence": 0.85,
+    "component": "testsuite: resource expectation",
+    "rationale": "Resource expectation fails but results match the golden reference build exactly: the expectation in the testcase is stale or wrong.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "test_bug",
+    "confidence": 0.85,
+    "component": "testsuite: resource expectation",
+    "rationale": "Resource expectation fails but results match the golden reference build exactly: the expectation in the testcase is stale or wrong.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": "DEF-0003"
+  },
+  {
+   "id": "C04",
+   "evidence": {
+    "signature": "35ac5a7765",
+    "kind": "equiv_fail",
+    "message": "equivalence counterexample (netlist not equivalent to RTL)",
+    "excerpt": "\nSolving problem with 7758 variables and 22319 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "testcases": [
+     "tc_macc",
+     "tc_mul_reg"
+    ],
+    "flows_failed": [
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_dff"
+    ],
+    "fingerprint": [
+     "-flatten"
+    ],
+    "baseline_failed": false,
+    "golden_match": true,
+    "families": [
+     "DSP"
+    ],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_mul_reg__xc7_flatten",
+    "tc_mul_reg__xc7_flat_noio",
+    "tc_macc__xc7_flatten",
+    "tc_macc__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: DSP48 mapping",
+    "rationale": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: DSP48 mapping",
+    "rationale": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "reproducer": {
+    "testcase": "tc_mul_reg",
+    "params": {
+     "W": 6
+    },
+    "flow_command": "synth_xilinx -family xc7 -flatten",
+    "removed_options": [
+     "-noiopad"
+    ],
+    "design_lines": 7,
+    "trials": 4
+   },
+   "defect_id": "DEF-0004"
+  },
+  {
+   "id": "C05",
+   "evidence": {
+    "signature": "90d3e46372",
+    "kind": "qor_golden",
+    "message": "QoR drift vs golden: CARRY decreased",
+    "excerpt": "cells: {\"IO\": 50, \"LUT\": 64, \"MUXF\": 6}",
+    "testcases": [
+     "tc_addsub",
+     "tc_counter"
+    ],
+    "flows_failed": [
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_dff"
+    ],
+    "fingerprint": [
+     "-flatten"
+    ],
+    "baseline_failed": false,
+    "golden_match": false,
+    "families": [
+     "MUXF"
+    ],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_addsub__xc7_flatten",
+    "tc_addsub__xc7_flat_noio",
+    "tc_counter__xc7_flatten",
+    "tc_counter__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: CARRY mapping",
+    "rationale": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (qor_golden).",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: CARRY mapping",
+    "rationale": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (qor_golden).",
+    "needs_human_review": false
+   },
+   "reproducer": {
+    "testcase": "tc_addsub",
+    "params": {
+     "W": 16
+    },
+    "flow_command": "synth_xilinx -family xc7 -flatten",
+    "removed_options": [
+     "-noiopad"
+    ],
+    "design_lines": 7,
+    "trials": 4
+   },
+   "defect_id": "DEF-0005"
+  },
+  {
+   "id": "C06",
+   "evidence": {
+    "signature": "4f4baccf1c",
+    "kind": "infra",
+    "message": "worker died (exit <n>): OSError: [Errno <n>] No space left on device: 'netlist.json'",
+    "excerpt": "OSError: [Errno 28] No space left on device: 'netlist.json'",
+    "testcases": [
+     "tc_shreg"
+    ],
+    "flows_failed": [
+     "generic"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_dff",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "fingerprint": [],
+    "baseline_failed": false,
+    "golden_match": null,
+    "families": [],
+    "rerun": "passed",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_shreg__generic"
+   ],
+   "decision": {
+    "category": "infrastructure",
+    "confidence": 0.9,
+    "component": "regression infrastructure",
+    "rationale": "Failed on first attempt, passed on identical rerun: flaky infrastructure (hang/disk), not a tool or testcase problem.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "infrastructure",
+    "confidence": 0.9,
+    "component": "regression infrastructure",
+    "rationale": "Failed on first attempt, passed on identical rerun: flaky infrastructure (hang/disk), not a tool or testcase problem.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": null
+  },
+  {
+   "id": "C07",
+   "evidence": {
+    "signature": "56063563c9",
+    "kind": "timeout",
+    "message": "job exceeded timeout of 150s and was killed",
+    "excerpt": "",
+    "testcases": [
+     "tc_counter"
+    ],
+    "flows_failed": [
+     "xc7"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_dff"
+    ],
+    "fingerprint": [],
+    "baseline_failed": false,
+    "golden_match": null,
+    "families": [],
+    "rerun": "passed",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_counter__xc7"
+   ],
+   "decision": {
+    "category": "infrastructure",
+    "confidence": 0.9,
+    "component": "regression infrastructure",
+    "rationale": "Failed on first attempt, passed on identical rerun: flaky infrastructure (hang/disk), not a tool or testcase problem.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "infrastructure",
+    "confidence": 0.9,
+    "component": "regression infrastructure",
+    "rationale": "Failed on first attempt, passed on identical rerun: flaky infrastructure (hang/disk), not a tool or testcase problem.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": null
+  },
+  {
+   "id": "C08",
+   "evidence": {
+    "signature": "7c78337b5b",
+    "kind": "crash",
+    "message": "ERROR: Assert `GetSize(sig) == width' failed in pass wreduce.",
+    "excerpt": "Optimizing module param_hier.\nOptimizing module $paramod\\ph_lane\\W=s32'00000000000000000000000000001000.\n\n3.8.9. Finished fast OPT passes. (There is nothing left to do.)\n\n3.9. Executing WREDUCE pass (reducing word size of cells).\nERROR: Assert `GetSize(sig) == width' failed in pass wreduce.",
+    "testcases": [
+     "tc_param_hier"
+    ],
+    "flows_failed": [
+     "generic"
+    ],
+    "flows_passed": [
+     "xc7",
+     "xc7_dff",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "fingerprint": [
+     "synth"
+    ],
+    "baseline_failed": true,
+    "golden_match": null,
+    "families": [],
+    "rerun": "not_run",
+    "known_match": "KDB-0001",
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_param_hier__generic"
+   ],
+   "decision": {
+    "category": "known_issue",
+    "confidence": 0.95,
+    "component": "synthesis core: wreduce",
+    "rationale": "Message matches open known defect KDB-0001.",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "known_issue",
+    "confidence": 0.95,
+    "component": "synthesis core: wreduce",
+    "rationale": "Message matches open known defect KDB-0001.",
+    "needs_human_review": false
+   },
+   "reproducer": null,
+   "defect_id": null
+  },
+  {
+   "id": "C09",
+   "evidence": {
+    "signature": "922c6db83b",
+    "kind": "equiv_fail",
+    "message": "equivalence counterexample (netlist not equivalent to RTL)",
+    "excerpt": "\nSolving problem with 4732 variables and 12470 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "testcases": [
+     "tc_fsm_seqdet"
+    ],
+    "flows_failed": [
+     "xc7_dff"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_flat_noio",
+     "xc7_flatten"
+    ],
+    "fingerprint": [
+     "-dff"
+    ],
+    "baseline_failed": false,
+    "golden_match": true,
+    "families": [],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_fsm_seqdet__xc7_dff"
+   ],
+   "decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: abc9 -dff (LUT/FF mapping)",
+    "rationale": "Fails only when -dff is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: abc9 -dff (LUT/FF mapping)",
+    "rationale": "Fails only when -dff is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "reproducer": {
+    "testcase": "tc_fsm_seqdet",
+    "params": {},
+    "flow_command": "synth_xilinx -family xc7 -dff",
+    "removed_options": [],
+    "design_lines": 20,
+    "trials": 1
+   },
+   "defect_id": "DEF-0006"
+  },
+  {
+   "id": "C10",
+   "evidence": {
+    "signature": "a014941aab",
+    "kind": "equiv_fail",
+    "message": "equivalence counterexample (netlist not equivalent to RTL)",
+    "excerpt": "\nSolving problem with 131499 variables and 367092 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "testcases": [
+     "tc_lutram"
+    ],
+    "flows_failed": [
+     "xc7_flat_noio"
+    ],
+    "flows_passed": [
+     "generic",
+     "xc7",
+     "xc7_dff",
+     "xc7_flatten"
+    ],
+    "fingerprint": [
+     "-noiopad"
+    ],
+    "baseline_failed": false,
+    "golden_match": true,
+    "families": [
+     "LUTRAM"
+    ],
+    "rerun": "not_run",
+    "known_match": null,
+    "error_in_testcase": false
+   },
+   "members": [
+    "tc_lutram__xc7_flat_noio"
+   ],
+   "decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: distributed RAM mapping",
+    "rationale": "Fails only when -noiopad is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "decided_by": "rules",
+   "rules_decision": {
+    "category": "tool_defect",
+    "confidence": 0.9,
+    "component": "synth_xilinx: distributed RAM mapping",
+    "rationale": "Fails only when -noiopad is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).",
+    "needs_human_review": false
+   },
+   "reproducer": {
+    "testcase": "tc_lutram_min0",
+    "params": {
+     "AW": 2,
+     "DW": 2
+    },
+    "flow_command": "synth_xilinx -family xc7 -noiopad",
+    "removed_options": [
+     "-flatten"
+    ],
+    "design_lines": 10,
+    "trials": 3
+   },
+   "defect_id": "DEF-0007"
+  }
+ ],
+ "defects": [
+  {
+   "id": "DEF-0001",
+   "signature": "89ccaf7935",
+   "status": "filed",
+   "title": "[testsuite] tc_legacy_cmp4: testcase does not parse",
+   "component": "testsuite: Verilog source",
+   "severity": "S3",
+   "category": "test_bug",
+   "body": {
+    "title": "[testsuite] tc_legacy_cmp4: testcase does not parse",
+    "component": "testsuite: Verilog source",
+    "severity": "S3",
+    "category": "test_bug",
+    "summary": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.\nFailing flows: generic, xc7, xc7_dff, xc7_flat_noio, xc7_flatten. Passing flows: none. Signature 89ccaf7935.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/jobs/tc_legacy_cmp4__generic",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Testcase parses",
+    "actual": "design.v:<line>: ERROR: syntax error, unexpected TOK_ASSIGN\n Yosys 0.71 (git sha1 b4c586fd3, Release, Clang /workspace/YoWASP/yosys/wasi-sdk-33.0-x86_64-linux/share/cmake/../..//bin/clang++ 22.1.0)\n\n-- Executing script file `synth.ys' --\n\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\ndesign.v:8: ERROR: syntax error, unexpected TOK_ASSIGN",
+    "affected": [
+     "tc_legacy_cmp4__generic",
+     "tc_legacy_cmp4__xc7",
+     "tc_legacy_cmp4__xc7_flatten",
+     "tc_legacy_cmp4__xc7_dff",
+     "tc_legacy_cmp4__xc7_flat_noio"
+    ],
+    "signature": "89ccaf7935"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:29+00:00",
+   "closed_at": null,
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0002",
+   "signature": "e68be587fe",
+   "status": "filed",
+   "title": "[testsuite] tc_legacy_gray: testcase does not elaborate",
+   "component": "testsuite: testcase metadata",
+   "severity": "S3",
+   "category": "test_bug",
+   "body": {
+    "title": "[testsuite] tc_legacy_gray: testcase does not elaborate",
+    "component": "testsuite: testcase metadata",
+    "severity": "S3",
+    "category": "test_bug",
+    "summary": "Front-end rejects the testcase itself (syntax or wrong top/metadata) on every flow; the failure is independent of synthesis options.\nFailing flows: generic, xc7, xc7_dff, xc7_flat_noio, xc7_flatten. Passing flows: none. Signature e68be587fe.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/jobs/tc_legacy_gray__generic",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Testcase elaborates with the declared top",
+    "actual": "ERROR: Module `gray_counter_top' not found!\n1. Executing Verilog-2005 frontend: design.v\nParsing Verilog input from `design.v' to AST representation.\nGenerating RTLIL representation for module `\\gray_counter'.\nSuccessfully finished Verilog frontend.\n\n2. Executing HIERARCHY pass (managing design hierarchy).\nERROR: Module `gray_counter_top' not found!",
+    "affected": [
+     "tc_legacy_gray__generic",
+     "tc_legacy_gray__xc7",
+     "tc_legacy_gray__xc7_flatten",
+     "tc_legacy_gray__xc7_dff",
+     "tc_legacy_gray__xc7_flat_noio"
+    ],
+    "signature": "e68be587fe"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:29+00:00",
+   "closed_at": null,
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0003",
+   "signature": "08bd883ede",
+   "status": "filed",
+   "title": "[testsuite] tc_legacy_parity: resource expectation not met",
+   "component": "testsuite: resource expectation",
+   "severity": "S3",
+   "category": "test_bug",
+   "body": {
+    "title": "[testsuite] tc_legacy_parity: resource expectation not met",
+    "component": "testsuite: resource expectation",
+    "severity": "S3",
+    "category": "test_bug",
+    "summary": "Resource expectation fails but results match the golden reference build exactly: the expectation in the testcase is stale or wrong.\nFailing flows: xc7, xc7_dff, xc7_flat_noio, xc7_flatten. Passing flows: generic. Signature 08bd883ede.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/jobs/tc_legacy_parity__xc7",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Resource expectations met",
+    "actual": "QoR expectation unmet: DSP>=1\ncells: {\"IO\": 35, \"LUT\": 33}",
+    "affected": [
+     "tc_legacy_parity__xc7",
+     "tc_legacy_parity__xc7_flatten",
+     "tc_legacy_parity__xc7_dff",
+     "tc_legacy_parity__xc7_flat_noio"
+    ],
+    "signature": "08bd883ede"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:30+00:00",
+   "closed_at": null,
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0004",
+   "signature": "35ac5a7765",
+   "status": "closed",
+   "title": "[synth_xilinx: DSP48 mapping] synthesised netlist is not equivalent to RTL with -flatten (2 testcase(s))",
+   "component": "synth_xilinx: DSP48 mapping",
+   "severity": "S1",
+   "category": "tool_defect",
+   "body": {
+    "title": "[synth_xilinx: DSP48 mapping] synthesised netlist is not equivalent to RTL with -flatten (2 testcase(s))",
+    "component": "synth_xilinx: DSP48 mapping",
+    "severity": "S1",
+    "category": "tool_defect",
+    "summary": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).\nFailing flows: xc7_flat_noio, xc7_flatten. Passing flows: generic, xc7, xc7_dff. Signature 35ac5a7765.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/reduce/tc_mul_reg__xc7_flat_noio~min__C04_repro",
+     "Yosys command: synth_xilinx -family xc7 -flatten -top <top> (options removed by reduction: -noiopad; params {'W': 6})",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Netlist equivalent to RTL (SAT miter finds no counterexample)",
+    "actual": "equivalence counterexample (netlist not equivalent to RTL)\n\nSolving problem with 7758 variables and 22319 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "affected": [
+     "tc_mul_reg__xc7_flatten",
+     "tc_mul_reg__xc7_flat_noio",
+     "tc_macc__xc7_flatten",
+     "tc_macc__xc7_flat_noio"
+    ],
+    "signature": "35ac5a7765"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:30+00:00",
+   "closed_at": "2026-11-23T22:48:46+00:00",
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0005",
+   "signature": "90d3e46372",
+   "status": "closed",
+   "title": "[synth_xilinx: CARRY mapping] resource usage regressed versus golden with -flatten (2 testcase(s))",
+   "component": "synth_xilinx: CARRY mapping",
+   "severity": "S3",
+   "category": "tool_defect",
+   "body": {
+    "title": "[synth_xilinx: CARRY mapping] resource usage regressed versus golden with -flatten (2 testcase(s))",
+    "component": "synth_xilinx: CARRY mapping",
+    "severity": "S3",
+    "category": "tool_defect",
+    "summary": "Fails only when -flatten is used; baseline flow passes on the same design. Option-triggered tool behaviour (qor_golden).\nFailing flows: xc7_flat_noio, xc7_flatten. Passing flows: generic, xc7, xc7_dff. Signature 90d3e46372.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/reduce/tc_addsub__xc7_flat_noio~min__C05_repro",
+     "Yosys command: synth_xilinx -family xc7 -flatten -top <top> (options removed by reduction: -noiopad; params {'W': 16})",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Primitive usage equal to the golden reference build",
+    "actual": "QoR drift vs golden: CARRY decreased\ncells: {\"IO\": 50, \"LUT\": 64, \"MUXF\": 6}",
+    "affected": [
+     "tc_addsub__xc7_flatten",
+     "tc_addsub__xc7_flat_noio",
+     "tc_counter__xc7_flatten",
+     "tc_counter__xc7_flat_noio"
+    ],
+    "signature": "90d3e46372"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:30+00:00",
+   "closed_at": "2026-11-23T22:48:46+00:00",
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0006",
+   "signature": "922c6db83b",
+   "status": "closed",
+   "title": "[synth_xilinx: abc9 -dff (LUT/FF mapping)] synthesised netlist is not equivalent to RTL with -dff (1 testcase(s))",
+   "component": "synth_xilinx: abc9 -dff (LUT/FF mapping)",
+   "severity": "S1",
+   "category": "tool_defect",
+   "body": {
+    "title": "[synth_xilinx: abc9 -dff (LUT/FF mapping)] synthesised netlist is not equivalent to RTL with -dff (1 testcase(s))",
+    "component": "synth_xilinx: abc9 -dff (LUT/FF mapping)",
+    "severity": "S1",
+    "category": "tool_defect",
+    "summary": "Fails only when -dff is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).\nFailing flows: xc7_dff. Passing flows: generic, xc7, xc7_flat_noio, xc7_flatten. Signature 922c6db83b.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/reduce/tc_fsm_seqdet__xc7_dff~min__C09_repro",
+     "Yosys command: synth_xilinx -family xc7 -dff -top <top> (options removed by reduction: none; params {})",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Netlist equivalent to RTL (SAT miter finds no counterexample)",
+    "actual": "equivalence counterexample (netlist not equivalent to RTL)\n\nSolving problem with 4732 variables and 12470 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "affected": [
+     "tc_fsm_seqdet__xc7_dff"
+    ],
+    "signature": "922c6db83b"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:30+00:00",
+   "closed_at": "2026-11-23T22:48:46+00:00",
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  },
+  {
+   "id": "DEF-0007",
+   "signature": "a014941aab",
+   "status": "closed",
+   "title": "[synth_xilinx: distributed RAM mapping] synthesised netlist is not equivalent to RTL with -noiopad (1 testcase(s))",
+   "component": "synth_xilinx: distributed RAM mapping",
+   "severity": "S1",
+   "category": "tool_defect",
+   "body": {
+    "title": "[synth_xilinx: distributed RAM mapping] synthesised netlist is not equivalent to RTL with -noiopad (1 testcase(s))",
+    "component": "synth_xilinx: distributed RAM mapping",
+    "severity": "S1",
+    "category": "tool_defect",
+    "summary": "Fails only when -noiopad is used; baseline flow passes on the same design. Option-triggered tool behaviour (equiv_fail).\nFailing flows: xc7_flat_noio. Passing flows: generic, xc7, xc7_dff, xc7_flatten. Signature a014941aab.",
+    "repro_steps": [
+     "python -m vagent rerun-job runs/20261124-040849-full/reduce/tc_lutram_min0__xc7_flat_noio~min__C10_redp3",
+     "Yosys command: synth_xilinx -family xc7 -noiopad -top <top> (options removed by reduction: -flatten; params {'AW': 2, 'DW': 2})",
+     "Compare synth.log, equiv.log and result.json in that directory"
+    ],
+    "expected": "Netlist equivalent to RTL (SAT miter finds no counterexample)",
+    "actual": "equivalence counterexample (netlist not equivalent to RTL)\n\nSolving problem with 131499 variables and 367092 clauses..\nSAT proof finished - model found: FAIL!\n",
+    "affected": [
+     "tc_lutram__xc7_flat_noio"
+    ],
+    "signature": "a014941aab"
+   },
+   "occurrences": 1,
+   "created_at": "2026-11-23T22:45:29+00:00",
+   "approved_by": "Abhishek Agarwal",
+   "approved_at": "2026-11-23T22:45:30+00:00",
+   "closed_at": "2026-11-23T22:48:46+00:00",
+   "first_run": "20261124-040849-full",
+   "last_run": "20261124-040849-full"
+  }
+ ],
+ "audit": [
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0001",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0002",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0003",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0004",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0005",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0006",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0007",
+   "action": "drafted",
+   "actor": "agent",
+   "detail": "20261124-040849-full"
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0001",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:29+00:00",
+   "defect_id": "DEF-0002",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:30+00:00",
+   "defect_id": "DEF-0003",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:30+00:00",
+   "defect_id": "DEF-0004",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:30+00:00",
+   "defect_id": "DEF-0005",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:30+00:00",
+   "defect_id": "DEF-0006",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:45:30+00:00",
+   "defect_id": "DEF-0007",
+   "action": "approved_and_filed",
+   "actor": "Abhishek Agarwal",
+   "detail": ""
+  },
+  {
+   "ts": "2026-11-23T22:48:46+00:00",
+   "defect_id": "DEF-0004",
+   "action": "closed_fix_verified",
+   "actor": "agent",
+   "detail": "run 20261124-040849-full: reproducer and 4 affected jobs pass on build=fixed"
+  },
+  {
+   "ts": "2026-11-23T22:48:46+00:00",
+   "defect_id": "DEF-0005",
+   "action": "closed_fix_verified",
+   "actor": "agent",
+   "detail": "run 20261124-040849-full: reproducer and 4 affected jobs pass on build=fixed"
+  },
+  {
+   "ts": "2026-11-23T22:48:46+00:00",
+   "defect_id": "DEF-0006",
+   "action": "closed_fix_verified",
+   "actor": "agent",
+   "detail": "run 20261124-040849-full: reproducer and 1 affected jobs pass on build=fixed"
+  },
+  {
+   "ts": "2026-11-23T22:48:46+00:00",
+   "defect_id": "DEF-0007",
+   "action": "closed_fix_verified",
+   "actor": "agent",
+   "detail": "run 20261124-040849-full: reproducer and 1 affected jobs pass on build=fixed"
+  }
+ ],
+ "fixverify": {
+  "defects": [
+   {
+    "id": "DEF-0004",
+    "title": "[synth_xilinx: DSP48 mapping] synthesised netlist is not equivalent to RTL with -flatten (2 testcase(s))",
+    "reproducer_passes": true,
+    "affected_pass": true,
+    "closed": true
+   },
+   {
+    "id": "DEF-0005",
+    "title": "[synth_xilinx: CARRY mapping] resource usage regressed versus golden with -flatten (2 testcase(s))",
+    "reproducer_passes": true,
+    "affected_pass": true,
+    "closed": true
+   },
+   {
+    "id": "DEF-0006",
+    "title": "[synth_xilinx: abc9 -dff (LUT/FF mapping)] synthesised netlist is not equivalent to RTL with -dff (1 testcase(s))",
+    "reproducer_passes": true,
+    "affected_pass": true,
+    "closed": true
+   },
+   {
+    "id": "DEF-0007",
+    "title": "[synth_xilinx: distributed RAM mapping] synthesised netlist is not equivalent to RTL with -noiopad (1 testcase(s))",
+    "reproducer_passes": true,
+    "affected_pass": true,
+    "closed": true
+   }
+  ],
+  "delta": {
+   "fixed": [
+    "tc_mul_reg__xc7_flatten",
+    "tc_mul_reg__xc7_flat_noio",
+    "tc_macc__xc7_flatten",
+    "tc_macc__xc7_flat_noio",
+    "tc_addsub__xc7_flatten",
+    "tc_addsub__xc7_flat_noio",
+    "tc_counter__xc7_flatten",
+    "tc_counter__xc7_flat_noio",
+    "tc_fsm_seqdet__xc7_dff",
+    "tc_lutram__xc7_flat_noio"
+   ],
+   "still_failing": [],
+   "new_failures": [],
+   "still_passing": [
+    "tc_addsub__generic",
+    "tc_addsub__xc7",
+    "tc_addsub__xc7_dff",
+    "tc_counter__generic",
+    "tc_counter__xc7",
+    "tc_counter__xc7_dff",
+    "tc_fsm_seqdet__generic",
+    "tc_fsm_seqdet__xc7",
+    "tc_fsm_seqdet__xc7_flatten",
+    "tc_fsm_seqdet__xc7_flat_noio",
+    "tc_lutram__generic",
+    "tc_lutram__xc7",
+    "tc_lutram__xc7_dff",
+    "tc_lutram__xc7_flatten",
+    "tc_macc__generic",
+    "tc_macc__xc7",
+    "tc_macc__xc7_dff",
+    "tc_mul_reg__generic",
+    "tc_mul_reg__xc7",
+    "tc_mul_reg__xc7_dff"
+   ]
+  }
+ },
+ "coverage": {
+  "matrix": {
+   "flows": [
+    "generic",
+    "xc7",
+    "xc7_flatten",
+    "xc7_noiopad",
+    "xc7_dff",
+    "xc7_flat_noio",
+    "xc7_widemux"
+   ],
+   "features": {
+    "FEAT-COMB": "Combinational logic, case/casez priority logic, reduction operators",
+    "FEAT-ARITH": "Adders and subtractors mapped to carry chains",
+    "FEAT-DSP": "Multiplier and multiply-accumulate inference into DSP48E1",
+    "FEAT-FSM": "Finite state machine extraction and re-encoding",
+    "FEAT-SEQ": "Sequential logic with synchronous reset and clock enable",
+    "FEAT-SRL": "Shift registers mapped to SRL16E/SRLC32E",
+    "FEAT-LUTRAM": "Small memories with asynchronous read mapped to distributed RAM",
+    "FEAT-BRAM": "Memories with synchronous read mapped to block RAM",
+    "FEAT-PARAM": "Parameterised modules and parameter overrides",
+    "FEAT-HIER": "Hierarchy, generate loops and flattening",
+    "FEAT-ASYNC-RST": "Asynchronous reset and preset flip-flops (FDCE/FDPE)",
+    "FEAT-WIDEMUX": "Wide multiplexers mapped to MUXF7/MUXF8"
+   },
+   "cells": {
+    "FEAT-COMB": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_comb_mux",
+       "tc_legacy_cmp4",
+       "tc_legacy_parity"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_comb_mux",
+       "tc_legacy_cmp4",
+       "tc_legacy_parity"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_comb_mux",
+       "tc_legacy_cmp4",
+       "tc_legacy_parity"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_comb_mux",
+       "tc_legacy_cmp4",
+       "tc_legacy_parity"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_comb_mux",
+       "tc_legacy_cmp4",
+       "tc_legacy_parity"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-ARITH": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_addsub"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_addsub"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "fail",
+      "tests": [
+       "tc_addsub"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_addsub"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "fail",
+      "tests": [
+       "tc_addsub"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-DSP": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_macc",
+       "tc_mul_reg"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_macc",
+       "tc_mul_reg"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "fail",
+      "tests": [
+       "tc_macc",
+       "tc_mul_reg"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_macc",
+       "tc_mul_reg"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "fail",
+      "tests": [
+       "tc_macc",
+       "tc_mul_reg"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-FSM": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_fsm_seqdet"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_fsm_seqdet"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_fsm_seqdet"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "fail",
+      "tests": [
+       "tc_fsm_seqdet"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_fsm_seqdet"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-SEQ": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_fsm_seqdet",
+       "tc_legacy_gray",
+       "tc_macc"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_fsm_seqdet",
+       "tc_legacy_gray",
+       "tc_macc"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_fsm_seqdet",
+       "tc_legacy_gray",
+       "tc_macc"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_fsm_seqdet",
+       "tc_legacy_gray",
+       "tc_macc"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_fsm_seqdet",
+       "tc_legacy_gray",
+       "tc_macc"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-SRL": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_shreg"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_shreg"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_shreg"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_shreg"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_shreg"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-LUTRAM": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_lutram"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_lutram"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_lutram"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_lutram"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "fail",
+      "tests": [
+       "tc_lutram"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-BRAM": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_bram"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "qor_only",
+      "tests": [
+       "tc_bram"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "qor_only",
+      "tests": [
+       "tc_bram"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "qor_only",
+      "tests": [
+       "tc_bram"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "qor_only",
+      "tests": [
+       "tc_bram"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-PARAM": {
+     "generic": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_counter",
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-HIER": {
+     "generic": {
+      "status": "fail",
+      "tests": [
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7": {
+      "status": "verified",
+      "tests": [
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "verified",
+      "tests": [
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "verified",
+      "tests": [
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "verified",
+      "tests": [
+       "tc_param_hier"
+      ],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-ASYNC-RST": {
+     "generic": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7_flat_noio": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     }
+    },
+    "FEAT-WIDEMUX": {
+     "generic": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     },
+     "xc7_flatten": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_noiopad": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_dff": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_flat_noio": {
+      "status": "not_run",
+      "tests": [],
+      "required": false
+     },
+     "xc7_widemux": {
+      "status": "not_run",
+      "tests": [],
+      "required": true
+     }
+    }
+   },
+   "required": 57,
+   "verified": 39,
+   "pct_verified": 68.4
+  },
+  "gaps": [
+   {
+    "feature": "FEAT-ARITH",
+    "flow": "xc7_flatten",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-ARITH",
+    "flow": "xc7_flat_noio",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-DSP",
+    "flow": "xc7_flatten",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-DSP",
+    "flow": "xc7_flat_noio",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-FSM",
+    "flow": "xc7_dff",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-LUTRAM",
+    "flow": "xc7_flat_noio",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-BRAM",
+    "flow": "xc7",
+    "type": "qor_only",
+    "detail": "no formal verdict (equivalence skipped/inconclusive)"
+   },
+   {
+    "feature": "FEAT-BRAM",
+    "flow": "xc7_flatten",
+    "type": "qor_only",
+    "detail": "no formal verdict (equivalence skipped/inconclusive)"
+   },
+   {
+    "feature": "FEAT-BRAM",
+    "flow": "xc7_dff",
+    "type": "qor_only",
+    "detail": "no formal verdict (equivalence skipped/inconclusive)"
+   },
+   {
+    "feature": "FEAT-BRAM",
+    "flow": "xc7_flat_noio",
+    "type": "qor_only",
+    "detail": "no formal verdict (equivalence skipped/inconclusive)"
+   },
+   {
+    "feature": "FEAT-HIER",
+    "flow": "generic",
+    "type": "fail",
+    "detail": "only failing results"
+   },
+   {
+    "feature": "FEAT-ASYNC-RST",
+    "type": "no_test",
+    "detail": "no generator/testcase for this feature"
+   },
+   {
+    "feature": "FEAT-WIDEMUX",
+    "type": "no_test",
+    "detail": "no generator/testcase for this feature"
+   },
+   {
+    "flow": "xc7_noiopad",
+    "type": "flow_not_run",
+    "detail": "flow declared in spec but not in regression"
+   },
+   {
+    "flow": "xc7_widemux",
+    "type": "flow_not_run",
+    "detail": "flow declared in spec but not in regression"
+   }
+  ],
+  "proposals": [
+   {
+    "feature": "FEAT-ASYNC-RST",
+    "source": "template",
+    "top": "arst_counter",
+    "admitted": true,
+    "gate": "clean",
+    "rationale": "No testcase exercises asynchronous reset/preset flip-flops (FDCE/FDPE mapping).",
+    "expect_xc7": [
+     "FF>=4"
+    ],
+    "verilog": "module arst_counter #(parameter W = 4) (\n  input              clk, arst, en,\n  output reg [W-1:0] q\n);\n  always @(posedge clk or posedge arst)\n    if (arst)    q <= {W{1'b0}};\n    else if (en) q <= q + 1'b1;\nendmodule\n",
+    "status": "awaiting human review"
+   },
+   {
+    "feature": "FEAT-WIDEMUX",
+    "source": "template",
+    "top": "mux32",
+    "admitted": true,
+    "gate": "clean",
+    "rationale": "No testcase drives 32:1 multiplexers, so MUXF7/MUXF8 inference and -widemux are untested.",
+    "expect_xc7": [
+     "MUXF>=1"
+    ],
+    "verilog": "module mux32 (\n  input  [31:0] d,\n  input  [4:0]  s,\n  output        y\n);\n  assign y = d[s];\nendmodule\n",
+    "status": "awaiting human review"
+   },
+   {
+    "feature": "FEAT-BRAM",
+    "source": "rule",
+    "admitted": null,
+    "rationale": "Formal check skipped for this primitive. Add simulation of the netlist against the vendor primitive models (or a commercial equivalence checker that models the primitive) to close this gap.",
+    "status": "recommendation"
+   }
+  ]
+ },
+ "evaluation": {
+  "rules": {
+   "live_rules": {
+    "n": 27,
+    "accuracy": 1.0,
+    "per_class": {
+     "tool_defect": {
+      "support": 10,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     },
+     "test_bug": {
+      "support": 14,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     },
+     "infrastructure": {
+      "support": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     },
+     "known_issue": {
+      "support": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     }
+    },
+    "confusion": {
+     "tool_defect": {
+      "tool_defect": 10,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "test_bug": {
+      "tool_defect": 0,
+      "test_bug": 14,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "infrastructure": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 2,
+      "known_issue": 0
+     },
+     "known_issue": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 1
+     }
+    },
+    "unlabelled_failures": []
+   },
+   "gold_rules": {
+    "n": 22,
+    "accuracy": 0.818,
+    "per_class": {
+     "tool_defect": {
+      "support": 10,
+      "precision": 0.75,
+      "recall": 0.9,
+      "f1": 0.818
+     },
+     "test_bug": {
+      "support": 6,
+      "precision": 0.75,
+      "recall": 0.5,
+      "f1": 0.6
+     },
+     "infrastructure": {
+      "support": 4,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     },
+     "known_issue": {
+      "support": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     }
+    },
+    "confusion": {
+     "tool_defect": {
+      "tool_defect": 9,
+      "test_bug": 1,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "test_bug": {
+      "tool_defect": 3,
+      "test_bug": 3,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "infrastructure": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 4,
+      "known_issue": 0
+     },
+     "known_issue": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 2
+     }
+    },
+    "items": [
+     {
+      "id": "20261123-215943-full:C01",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "test_bug",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C02",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "test_bug",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C03",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "test_bug",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C04",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C05",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C06",
+      "source": "harvested",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C07",
+      "source": "harvested",
+      "label": "known_issue",
+      "pred": "known_issue",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C08",
+      "source": "harvested",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C09",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C10",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw01",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw02",
+      "source": "handwritten",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "hw03",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw04",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     },
+     {
+      "id": "hw05",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     },
+     {
+      "id": "hw06",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw07",
+      "source": "handwritten",
+      "label": "known_issue",
+      "pred": "known_issue",
+      "ok": true
+     },
+     {
+      "id": "hw08",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "test_bug",
+      "ok": false
+     },
+     {
+      "id": "hw09",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw10",
+      "source": "handwritten",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "hw11",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw12",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     }
+    ],
+    "by_source": {
+     "handwritten": 0.667,
+     "harvested": 1.0
+    }
+   },
+   "escapes": []
+  },
+  "llm": {
+   "run_id": "20261124-012322-full",
+   "calls": {
+    "llm_ok": 41,
+    "llm_rate_limited": 27
+   },
+   "live_llm": {
+    "n": 27,
+    "accuracy": 0.852,
+    "per_class": {
+     "tool_defect": {
+      "support": 10,
+      "precision": 0.714,
+      "recall": 1.0,
+      "f1": 0.833
+     },
+     "test_bug": {
+      "support": 14,
+      "precision": 1.0,
+      "recall": 0.714,
+      "f1": 0.833
+     },
+     "infrastructure": {
+      "support": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     },
+     "known_issue": {
+      "support": 1,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     }
+    },
+    "confusion": {
+     "tool_defect": {
+      "tool_defect": 10,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "test_bug": {
+      "tool_defect": 4,
+      "test_bug": 10,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "infrastructure": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 2,
+      "known_issue": 0
+     },
+     "known_issue": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 1
+     }
+    },
+    "unlabelled_failures": []
+   },
+   "gold_llm": {
+    "n": 22,
+    "accuracy": 0.727,
+    "per_class": {
+     "tool_defect": {
+      "support": 10,
+      "precision": 0.667,
+      "recall": 0.8,
+      "f1": 0.727
+     },
+     "test_bug": {
+      "support": 6,
+      "precision": 1.0,
+      "recall": 0.333,
+      "f1": 0.5
+     },
+     "infrastructure": {
+      "support": 4,
+      "precision": 0.667,
+      "recall": 1.0,
+      "f1": 0.8
+     },
+     "known_issue": {
+      "support": 2,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+     }
+    },
+    "confusion": {
+     "tool_defect": {
+      "tool_defect": 8,
+      "test_bug": 0,
+      "infrastructure": 2,
+      "known_issue": 0
+     },
+     "test_bug": {
+      "tool_defect": 4,
+      "test_bug": 2,
+      "infrastructure": 0,
+      "known_issue": 0
+     },
+     "infrastructure": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 4,
+      "known_issue": 0
+     },
+     "known_issue": {
+      "tool_defect": 0,
+      "test_bug": 0,
+      "infrastructure": 0,
+      "known_issue": 2
+     }
+    },
+    "items": [
+     {
+      "id": "20261123-215943-full:C01",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "test_bug",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C02",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "test_bug",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C03",
+      "source": "harvested",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     },
+     {
+      "id": "20261123-215943-full:C04",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C05",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C06",
+      "source": "harvested",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C07",
+      "source": "harvested",
+      "label": "known_issue",
+      "pred": "known_issue",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C08",
+      "source": "harvested",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C09",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "20261123-215943-full:C10",
+      "source": "harvested",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw01",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "infrastructure",
+      "ok": false
+     },
+     {
+      "id": "hw02",
+      "source": "handwritten",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "hw03",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw04",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     },
+     {
+      "id": "hw05",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     },
+     {
+      "id": "hw06",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "infrastructure",
+      "ok": false
+     },
+     {
+      "id": "hw07",
+      "source": "handwritten",
+      "label": "known_issue",
+      "pred": "known_issue",
+      "ok": true
+     },
+     {
+      "id": "hw08",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw09",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw10",
+      "source": "handwritten",
+      "label": "infrastructure",
+      "pred": "infrastructure",
+      "ok": true
+     },
+     {
+      "id": "hw11",
+      "source": "handwritten",
+      "label": "tool_defect",
+      "pred": "tool_defect",
+      "ok": true
+     },
+     {
+      "id": "hw12",
+      "source": "handwritten",
+      "label": "test_bug",
+      "pred": "tool_defect",
+      "ok": false
+     }
+    ],
+    "by_source": {
+     "handwritten": 0.583,
+     "harvested": 0.9
+    }
+   }
+  }
+ }
+}

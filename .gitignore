@@ -20,3 +20,6 @@ finetune/results/local_*/
 *.gguf
 
 CONCEPTS.md
+
+# web version: parity-test dependency (npm install --no-save @yowasp/yosys)
+node_modules/

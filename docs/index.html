@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agentic FPGA Tool Verification</title>
+  <meta name="description" content="An agent that runs the verification lifecycle of an FPGA synthesis tool (open-source Yosys): regression, formal equivalence, failure triage, defect drafting with human approval and fix verification. Runs Yosys live in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230b6e69'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'%3E%3Crect x='7' y='7' width='10' height='10' rx='1.5'/%3E%3Cpath d='M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="chip" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg>
+      </div>
+      <div>
+        <h1>Agentic Verification of an FPGA Synthesis Tool</h1>
+        <div class="sub">Proof of concept · open-source Yosys as the tool under test</div>
+      </div>
+      <a class="gh" href="https://github.com/abhishek-0706/agentic-fpga-tool-verification">View code on GitHub</a>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#live">Try it live</a>
+      <a href="#regression">Regression</a>
+      <a href="#triage">Triage &amp; defects</a>
+      <a href="#coverage">Coverage</a>
+      <a href="#evaluation">Evaluation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="view-overview" class="view" aria-labelledby="h-overview">
+    <h2 id="h-overview">What this agent does</h2>
+    <p class="lead">It runs the verification lifecycle of an FPGA synthesis tool end to end: it plans tests from a feature
+      spec, runs a regression of designs across synthesis flows, proves every netlist against its RTL with SAT-based
+      equivalence, groups failures into clusters, shrinks them to minimal reproducers, drafts defect reports for a human
+      to approve, and re-runs the fixed build to close them. Then it measures its own triage accuracy on labelled data.</p>
+    <div class="callout">The tool under test is <b>Yosys</b> (<code>synth</code> and <code>synth_xilinx</code> for
+      AMD/Xilinx 7-series), used as an open-source analogue of a commercial synthesis tool. A thin shim injects
+      realistic, option-triggered tool defects so there are real bugs to find. Nothing here uses or claims anything about
+      Vivado or Vitis.</div>
+    <div id="kpis" class="grid kpis"></div>
+    <h3>Pipeline</h3>
+    <p class="note">Times are from the recorded run. Dashed stages are optional; the amber stage needs a human.</p>
+    <div id="pipeline" class="pipeline"></div>
+    <div class="grid two">
+      <div class="card">
+        <h3>How it can be used</h3>
+        <p>On top of a nightly regression for a synthesis or compiler tool, to cut triage time: many failures become a few
+          clusters, tool bugs are separated from test bugs and infrastructure faults, developers get a minimal reproducer
+          and a ready-to-approve defect report, and fixes are verified automatically.</p>
+        <p class="note" style="margin:0">The same steps are exposed as MCP tools (<code>run_regression</code>, <code>triage</code>,
+          <code>get_coverage</code>, <code>draft_defect</code>) so an AI assistant can run them on request.</p>
+      </div>
+      <div class="card">
+        <h3>Design rules</h3>
+        <p>Deterministic oracles decide pass or fail, never the LLM. Every model output is schema-validated with a rules
+          fallback. Nothing with impact is filed without human approval. The agent's own accuracy is measured on labelled
+          data and reported, including where the LLM is worse than the rules.</p>
+        <p class="note" style="margin:0">This site shows the recorded run and lets you run single jobs live; the full
+          65-job pipeline runs from the command line (<code>python -m vagent demo</code>).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-live" class="view" aria-labelledby="h-live">
+    <h2 id="h-live">Run a regression job in your browser</h2>
+    <p class="lead">Pick a design, a synthesis flow and a build. Yosys runs locally as WebAssembly, then the same checks
+      the agent uses decide pass or fail. Nothing is uploaded.</p>
+    <div class="live">
+      <div class="card">
+        <label class="f">Try a job that hits an injected defect</label>
+        <div id="presets" class="presets"></div>
+        <label class="f" for="sel-tc">Design (testcase)</label>
+        <select id="sel-tc"></select>
+        <div id="tc-meta" class="note" style="margin-top:4px"></div>
+        <label class="f" for="sel-flow">Synthesis flow</label>
+        <select id="sel-flow"></select>
+        <label class="f">Build of the tool</label>
+        <div class="seg" role="group" aria-label="Build">
+          <button type="button" id="b-buggy" aria-pressed="true">buggy</button>
+          <button type="button" id="b-fixed" aria-pressed="false">fixed</button>
+        </div>
+        <label class="f" for="src">Verilog (editable)</label>
+        <textarea id="src" spellcheck="false" aria-describedby="src-note"></textarea>
+        <div id="src-note" class="note"></div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn primary" id="run" type="button">Run job</button>
+          <button class="btn" id="reset-src" type="button">Reset design</button>
+        </div>
+        <p class="note" style="margin:10px 0 0">The first run downloads Yosys (about 25 MB, cached by your browser).
+          A job takes 10 to 40 seconds: synthesis, then a SAT proof against the RTL.</p>
+      </div>
+      <div>
+        <ol class="steps" id="steps">
+          <li id="st-load"><div class="h"><span class="dot"></span>Load Yosys (WebAssembly)</div><div class="body note">Starts when you run the first job.</div></li>
+          <li id="st-synth"><div class="h"><span class="dot"></span>1. Synthesis by the tool under test</div><div class="body"></div></li>
+          <li id="st-qor"><div class="h"><span class="dot"></span>2. QoR checks: expectations and golden reference</div><div class="body"></div></li>
+          <li id="st-equiv"><div class="h"><span class="dot"></span>3. Equivalence oracle: netlist versus RTL</div><div class="body"></div></li>
+        </ol>
+        <div id="verdict"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-regression" class="view" aria-labelledby="h-regression">
+    <h2 id="h-regression">Regression: 13 designs across 5 flows</h2>
+    <p class="lead">Each cell is one job from the recorded run on the buggy build. Select a cell for its verdict, primitive
+      counts and log excerpt.</p>
+    <div class="legend" id="legend"></div>
+    <div class="scroll"><table class="matrix" id="matrix"></table></div>
+    <div id="job-detail" class="card" style="margin-top:14px"><p class="note" style="margin:0">Select a job above.</p></div>
+  </section>
+
+  <section id="view-triage" class="view" aria-labelledby="h-triage">
+    <h2 id="h-triage">Triage: 27 failures in 10 clusters</h2>
+    <p class="lead">Failures are normalised into signatures and clustered, compared across flows, re-run if they look like
+      infrastructure, matched against known defects and classified. Tool defects are shrunk to a minimal reproducer.</p>
+    <div id="clusters"></div>
+    <h2 style="margin-top:28px">Defects, approval and fix verification</h2>
+    <p class="note">Drafts are filed only after a person approves them (<code>vagent approve --by NAME</code>). Fix
+      verification re-runs the reproducer and the affected jobs on the fixed build.</p>
+    <div id="fixverify" class="grid kpis"></div>
+    <div class="scroll"><table id="defects"></table></div>
+    <details style="margin-top:12px"><summary>Audit trail</summary><div class="scroll" style="margin-top:8px"><table id="audit"></table></div></details>
+  </section>
+
+  <section id="view-coverage" class="view" aria-labelledby="h-coverage">
+    <h2 id="h-coverage">Coverage: features by flow</h2>
+    <p class="lead" id="cov-lead"></p>
+    <div class="scroll"><table class="matrix" id="cov-matrix"></table></div>
+    <div class="grid two" style="margin-top:16px">
+      <div class="card"><h3>Gaps found</h3><div id="gaps"></div></div>
+      <div class="card"><h3>Proposed tests (gated, awaiting review)</h3><div id="proposals"></div></div>
+    </div>
+  </section>
+
+  <section id="view-evaluation" class="view" aria-labelledby="h-evaluation">
+    <h2 id="h-evaluation">Evaluation of the agent's own triage</h2>
+    <p class="lead">Every injected fault writes a ground-truth label that triage never reads. Accuracy is measured on the
+      live run and on a gold set of 22 clusters (10 harvested, 12 handwritten hard cases).</p>
+    <div id="eval-kpis" class="grid kpis"></div>
+    <div id="eval-tables" class="grid two"></div>
+    <div class="callout" id="eval-note"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Recorded run <span id="run-id" class="mono"></span> · <span id="tool"></span> · Live jobs use
+    <a href="https://github.com/YoWASP/yosys">YoWASP Yosys</a> in your browser. All designs and defects are synthetic.
+  </div>
+</footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

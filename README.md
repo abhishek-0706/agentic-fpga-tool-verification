@@ -20,6 +20,37 @@ that triage never reads and evaluation does.
 only useful if deterministic oracles decide pass/fail, outputs are structured and validated, a
 human approves anything with impact, and the agent's accuracy is measured on labelled data.
 
+## Web version
+
+**https://abhishek-0706.github.io/agentic-fpga-tool-verification/**: nothing to install.
+
+- **Try it live**: pick a design, a synthesis flow and a build (`buggy` or `fixed`). Yosys runs in the
+  browser as WebAssembly ([YoWASP](https://github.com/YoWASP/yosys) 0.71, the same release as the Python
+  package), then the same checks decide pass or fail: QoR expectations, golden drift and the SAT
+  equivalence proof, with the counterexample shown per cycle. "Reveal the ground truth" shows which
+  defect the shim injected. The first run downloads about 25 MB; a job takes 10 to 40 seconds.
+- **Run explorer**: the recorded 65-job run as a clickable job matrix, the 10 failure clusters with their
+  rationale and minimal reproducers, the 7 defect drafts with the approval audit trail, fix verification,
+  coverage and the rules versus LLM evaluation.
+
+The single-job pipeline in the browser (`docs/js/pipeline.js`) is a line-for-line port of
+`toolshim.py`, `oracles.py` and `worker.py`. `scripts/web_parity.mjs` runs all 65 regression jobs
+through it with the same YoWASP build under Node and compares status, failure kind, equivalence verdict,
+primitive families, golden match and injected defects with the recorded Python results, then re-runs the
+10 fixed jobs on the `fixed` build. Result on 26 Nov 2026: all 75 checks match. The full pipeline
+(clustering, reduction, the tracker, fix verification across runs, the LLM) stays in Python.
+
+Refresh the site data after a new run, and re-check parity:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\export_web_data.py runs\<run> --llm-run runs\<llm-mode run>
+npm install --no-save @yowasp/yosys@0.71.1284
+node scripts/web_parity.mjs          # --quick runs only the jobs with injected defects
+```
+
+The exporter rewrites local paths as repository-relative paths and refuses to write output that still
+contains one.
+
 ## Architecture
 
 ```mermaid
@@ -66,6 +97,8 @@ flowchart LR
 | `vagent/mcp_server.py` | stage 13: MCP tools (draft only; no approve tool by design) |
 | `golden/qor_golden.json` | golden primitive counts from the `fixed` build (`python -m vagent bless`) |
 | `data/known_defects.json` | known-defect database (one open, one closed entry) |
+| `docs/` | static web version for GitHub Pages: run explorer and in-browser job runner (`docs/js/pipeline.js`) |
+| `scripts/export_web_data.py`, `scripts/web_parity.mjs` | export a run to `docs/data/run.json`; check the browser port against the Python results |
 
 ## How to run
 
